@@ -11,7 +11,6 @@ export function cropFactors(layer) {
 }
 
 export function calcDimensions(layer) {
-  console.log("LAYER: ", layer);
   const width = layer.size.W;
   const height = layer.size.H;
   const scaleX = layer.offset[6];

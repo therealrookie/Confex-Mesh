@@ -22,7 +22,6 @@ const Timeline = ({ handle, name }) => {
       );
 
       setLayers(layersData); // Set the combined layer data
-      console.log("All layers with descriptions:", layersData);
     } catch (error) {
       console.error("Error fetching layer details for timeline:", handle, error);
     }
@@ -62,7 +61,6 @@ const Timeline = ({ handle, name }) => {
   };
 
   const displayLayers = () => {
-    console.log("displayLayers");
     layers.forEach((layer) => {
       let width = layer.description.Size.W;
       const xStart = layer.description.Position.X + layer.offset[0] * 500;
@@ -70,8 +68,6 @@ const Timeline = ({ handle, name }) => {
         width = layer.description.Size.W - layer.description.Cropping.Left - layer.description.Cropping.Right;
       }
       //const xEnd = xStart + width;
-
-      console.log("Position: ", xStart, " Width: ", width);
     });
   };
 

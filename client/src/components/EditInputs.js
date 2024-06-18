@@ -38,7 +38,7 @@ const ZoneShape = styled.div`
   justify-content: center;
   align-items: center;
   height: 50px;
-  width: ${(props) => (50 * props.ratioWidth) / props.ratioHeight}px; /* Calculate width based on ratio */
+  width: ${(props) => (50 * props.$ratioWidth) / props.$ratioHeight}px; /* Calculate width based on ratio */
 `;
 
 const ZoneText = styled.div`
@@ -145,8 +145,8 @@ const EditInputs = ({ timelineHandle }) => {
                     ratio === editLayer.props.ratio && (
                       <ZoneShape
                         key={zone}
-                        ratioWidth={parseInt(ratio.split(":")[0], 10)}
-                        ratioHeight={parseInt(ratio.split(":")[1], 10)}
+                        $ratioWidth={parseInt(ratio.split(":")[0], 10)}
+                        $ratioHeight={parseInt(ratio.split(":")[1], 10)}
                         onClick={() => {
                           replaceInput(player.id, zone);
                         }}

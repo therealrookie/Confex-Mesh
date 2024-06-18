@@ -1,3 +1,6 @@
+// Currently selected / played Matrix
+// Is shown on the Main page
+
 import React from "react";
 import Matrix from "./Matrix";
 

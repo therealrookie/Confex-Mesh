@@ -13,22 +13,22 @@ const TimelineHeading = styled.div`
   flex-direction: row;
   align-items: center;
   &:hover ${EditIconStyled} {
-    visibility: ${(props) => (props.isEditing ? "hidden" : "visible")};
+    visibility: ${(props) => (props.$isEditing ? "hidden" : "visible")};
   }
 `;
 
 const StyledInput = styled.input`
-  text-align: ${(props) => (props.isEditing ? "left" : "center")};
+  text-align: ${(props) => (props.$isEditing ? "left" : "center")};
   border-radius: 8px;
   padding: 4px;
   margin: 1px;
   margin-left: 20px;
   width: 78%; // Adjust width as needed
   height: 100%;
-  border: ${(props) => (props.isEditing ? "1px solid black" : "none")};
-  background-color: ${(props) => (props.isEditing ? "white" : "transparent")};
+  border: ${(props) => (props.$isEditing ? "1px solid black" : "none")};
+  background-color: ${(props) => (props.$isEditing ? "white" : "transparent")};
   color: black;
-  pointer-events: ${(props) => (props.isEditing ? "auto" : "none")};
+  pointer-events: ${(props) => (props.$isEditing ? "auto" : "none")};
 `;
 
 const TimelineName = ({ handle, name, onSave }) => {
@@ -63,7 +63,7 @@ const TimelineName = ({ handle, name, onSave }) => {
   };
 
   return (
-    <TimelineHeading isEditing={isEditing}>
+    <TimelineHeading $isEditing={isEditing}>
       <EditIconStyled onClick={handleEdit} />
       <StyledInput
         ref={inputRef}
@@ -73,7 +73,7 @@ const TimelineName = ({ handle, name, onSave }) => {
         onBlur={handleSave}
         onKeyPress={handleKeyPress}
         readOnly={!isEditing}
-        isEditing={isEditing}
+        $isEditing={isEditing}
         autoFocus={isEditing}
       />
     </TimelineHeading>

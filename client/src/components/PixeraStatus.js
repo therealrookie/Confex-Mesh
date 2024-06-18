@@ -8,7 +8,6 @@ const PixeraData = [
 
 const PixeraStatus = () => {
   const sendPutRequest = async () => {
-    console.log("hello");
     try {
       const body = {};
       const response = await fetch(`http://localhost:5000/pixera/timelines`, {

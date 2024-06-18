@@ -21,7 +21,7 @@ const SlowSpinner = styled.div`
   border-radius: 50%;
   opacity: 0.75;
   animation: spinner-grow 2s ease-in-out infinite;
-  visibility: ${(props) => (props.running ? "visible" : "hidden")};
+  visibility: ${(props) => (props.$running ? "visible" : "hidden")};
 `;
 
 const Dropdown = styled.select`
@@ -51,7 +51,7 @@ const InputOption = styled.option`
   border: none;
 `;
 
-const InputData = ({ key, inputs, input, onUpdateInput }) => {
+const InputData = ({ inputs, input, onUpdateInput }) => {
   const initInput = inputs.find((inputVal) => inputVal.name === input) || { name: "n/a", fps: 0, resolution: "n/a" };
   const [selectedInput, setSelectedInput] = useState(initInput);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -94,7 +94,7 @@ const InputData = ({ key, inputs, input, onUpdateInput }) => {
               ))}
             </Dropdown>
 
-            <SlowSpinner role="status" running={running} />
+            <SlowSpinner role="status" $running={running} />
           </Badge>
         </div>
         <div className="col">

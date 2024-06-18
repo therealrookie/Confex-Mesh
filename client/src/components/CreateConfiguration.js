@@ -1,8 +1,6 @@
 import React, { useState } from "react";
-import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import "../sass/configuration.css";
 import styled from "styled-components";
-import Shape from "./Shape";
 import { newTimeline } from "../services/createTimeline";
 import { useQuery } from "@tanstack/react-query";
 import { getPlayers } from "../services/database";
@@ -37,7 +35,7 @@ const ZoneShape = styled.div`
   justify-content: center;
   align-items: center;
   height: 50px;
-  width: ${(props) => (50 * props.ratioWidth) / props.ratioHeight}px; /* Calculate width based on ratio */
+  width: ${(props) => (50 * props.$ratioWidth) / props.$ratioHeight}px; /* Calculate width based on ratio */
 `;
 
 const ZoneText = styled.div`
@@ -76,40 +74,38 @@ const CreateConfiguration = () => {
     queryFn: getPlayers,
   });
 
-  const matchingPlayers = (ratio) =>
-    playersQuery.data.filter((player) => {
-      Object.values(player.zones).includes(ratio);
+  const matchingPlayers = (ratio) => {
+    if (!playersQuery.data) return null;
 
-      return (
-        <div>
-          <Container>
-            {matchingPlayers.length > 0 ? (
-              matchingPlayers.map((player) => (
-                <PlayerContainer key={player.id}>
-                  <h4>{player.name}</h4>
-                  <ZoneContainer>
-                    {Object.entries(player.zones).map(([zone, ratio]) => (
-                      //ratio === editLayer.props.ratio && (
-                      <ZoneShape
-                        key={zone}
-                        ratioWidth={parseInt(ratio.split(":")[0], 10)}
-                        ratioHeight={parseInt(ratio.split(":")[1], 10)}
-                      >
-                        <ZoneText>
-                          Zone {zone}: {ratio}
-                        </ZoneText>
-                      </ZoneShape>
-                    ))}
-                  </ZoneContainer>
-                </PlayerContainer>
-              ))
-            ) : (
-              <p>No players with matching ratios found.</p>
-            )}
-          </Container>
-        </div>
-      );
-    });
+    const filteredPlayers = playersQuery.data.filter((player) => Object.values(player.zones).includes(ratio));
+
+    return (
+      <Container>
+        {filteredPlayers.length > 0 ? (
+          filteredPlayers.map((player) => (
+            <PlayerContainer key={player.id}>
+              <h4>{player.name}</h4>
+              <ZoneContainer>
+                {Object.entries(player.zones).map(([zone, ratio]) => (
+                  <ZoneShape
+                    key={zone}
+                    $ratioWidth={parseInt(ratio.split(":")[0], 10)}
+                    $ratioHeight={parseInt(ratio.split(":")[1], 10)}
+                  >
+                    <ZoneText>
+                      Zone {zone}: {ratio}
+                    </ZoneText>
+                  </ZoneShape>
+                ))}
+              </ZoneContainer>
+            </PlayerContainer>
+          ))
+        ) : (
+          <p>No players with matching ratios found.</p>
+        )}
+      </Container>
+    );
+  };
 
   const renderShapes = () => {
     switch (activeTab) {
@@ -154,7 +150,7 @@ const CreateConfiguration = () => {
       </ul>
       <ComponentContainer>
         {renderShapes()}
-        {matchingPlayers}
+        {matchingPlayers(activeTab)}
       </ComponentContainer>
       <button className="btn btn-danger" id="cancelButton">
         Cancel

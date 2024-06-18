@@ -13,7 +13,6 @@ const Timelines = () => {
       const data = await timelineResponse.json();
       setTimelines(data);
 
-      console.log("Timelines: ", timelines);
       //setTimelines(timelines);
 
       // Fetch layer details for each timeline

@@ -112,14 +112,16 @@ const MatrixList = () => {
 
         <tbody>
           {timelinesQuery.data.map((timeline, index) => (
-            <>
+            <React.Fragment key={timeline.handle}>
               <tr key={index}>
                 <td>{index}</td>
-                <TimelineName
-                  handle={timeline.handle}
-                  name={timeline.name}
-                  onSave={(handle, editName) => timelineNameMutation.mutate({ handle, editName })}
-                />
+                <td>
+                  <TimelineName
+                    handle={timeline.handle}
+                    name={timeline.name}
+                    onSave={(handle, editName) => timelineNameMutation.mutate({ handle, editName })}
+                  />
+                </td>
                 <td>
                   {timeline.transportMode === 1 ? (
                     <StopIcon
@@ -179,7 +181,7 @@ const MatrixList = () => {
                   <BottomBorder />
                 </td>
               </tr>
-            </>
+            </React.Fragment>
           ))}
         </tbody>
       </table>

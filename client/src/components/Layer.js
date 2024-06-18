@@ -75,7 +75,6 @@ const Layer = ({ handle, index, layersQuery }) => {
 
   useEffect(() => {
     assignPlayer();
-    console.log("PROPS: ", props);
   }, [props, playersQuery.data]);
 
   if (layerQuery.isLoading || playersQuery.isLoading) {

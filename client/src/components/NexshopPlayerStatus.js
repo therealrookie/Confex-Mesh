@@ -24,7 +24,6 @@ const NexshopPlayerStatus = () => {
 
       const newInputs = await inputResponse.json();
       setInputs(newInputs);
-      console.log(newInputs);
     } catch (error) {
       console.error("Error fetching inputs", error);
     }
@@ -37,7 +36,7 @@ const NexshopPlayerStatus = () => {
   return (
     <div className="d-flex justify-content-center flex-wrap">
       {HardwareInputs.map((input) => (
-        <div className="p-2 m-2 border rounded" style={{ minWidth: "150px" }}>
+        <div key={input.id} className="p-2 m-2 border rounded" style={{ minWidth: "150px" }}>
           <h5>{input.id}</h5>
           <p>{input.inputType}</p>
           <p>{input.player}</p>

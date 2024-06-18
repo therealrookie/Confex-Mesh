@@ -2,7 +2,6 @@ import React, { Fragment } from "react";
 import CreateConfiguration from "../components/CreateConfiguration";
 import MatrixList from "../components/MatrixList";
 import styled from "styled-components";
-import NavColumn from "../components/NavColumn";
 import { Link, Element } from "react-scroll";
 import PlayerConfiguration from "../components/PlayerConfiguration";
 import { EditMatrixProvider } from "../context/EditMatrixContext";
@@ -10,10 +9,6 @@ import { EditMatrixProvider } from "../context/EditMatrixContext";
 const Row = styled.div`
   width: 100%;
   height: 100ve;
-`;
-
-const NavColContainer = styled.div`
-  display: ;
 `;
 
 const Configuration = () => {
@@ -26,9 +21,7 @@ const Configuration = () => {
           <EditMatrixProvider>
             <MatrixList />
           </EditMatrixProvider>
-          <Element name="matrix-configuration">
-            <CreateConfiguration />
-          </Element>
+          <Element name="matrix-configuration"></Element>
           <Element name="player-configuration">
             <PlayerConfiguration />
           </Element>
@@ -43,5 +36,5 @@ export default Configuration;
 
 /**
            <NavColumn />
-
+<CreateConfiguration />
  */

@@ -35,7 +35,7 @@ const Matrix = ({ handle }) => {
   return (
     <MatrixContainer>
       {layersQuery.data.map((layer, index) => {
-        return <Layer handle={layer.handle} index={index} layersQuery={layersQuery.data} />;
+        return <Layer key={layer.handle} handle={layer.handle} index={index} layersQuery={layersQuery.data} />;
       })}
     </MatrixContainer>
   );

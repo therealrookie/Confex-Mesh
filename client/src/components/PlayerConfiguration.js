@@ -24,7 +24,7 @@ const Zone = styled.div`
   margin: 5px;
   padding: 0;
   height: 50px;
-  aspect-ratio: ${(props) => props.ratio};
+  aspect-ratio: ${(props) => props.$ratio};
   background-color: #fff;
   border-radius: 2px;
   display: flex;
@@ -85,7 +85,6 @@ const PlayerConfiguration = () => {
         const newInputName = input.includes(prevName) ? input.replace(prevName, newName) : input;
 
         const answer = await setInputName(player.handle[index], newInputName);
-        console.log("ANSWER 1: ", newInputName);
         return newInputName;
       })
     );
@@ -111,7 +110,6 @@ const PlayerConfiguration = () => {
     newResids[inputIndex] = newInput.resid;
 
     const answer = await setInputName(newHandles[inputIndex], newInputs[inputIndex]);
-    console.log("ANSWER 2: ", newInputs[inputIndex]);
 
     handleSubmit(id, player.name, newInputs, newHandles, newResids);
   };
@@ -134,7 +132,7 @@ const PlayerConfiguration = () => {
               <PlayerContainer>
                 <PlayerName name={player.name} onSave={(newName) => handleSaveName(player.id, newName)} />
                 {Object.entries(player.zones).map(([zoneId, ratio]) => (
-                  <Zone key={zoneId} ratio={ratio.replace(":", "/")}>
+                  <Zone key={zoneId} $ratio={ratio.replace(":", "/")}>
                     {ratio}
                   </Zone>
                 ))}

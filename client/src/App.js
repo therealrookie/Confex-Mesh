@@ -3,10 +3,7 @@ import "./App.css";
 import { Route, Routes } from "react-router-dom";
 
 // Components
-import Status from "./pages/Status";
 import Configuration from "./pages/Configuration";
-import Timeline from "./pages/Timeline";
-import Users from "./pages/users";
 import Navbar from "./components/Navbar";
 import Main from "./pages/Main";
 import Control from "./pages/Control";
