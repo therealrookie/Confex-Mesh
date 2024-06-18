@@ -1,0 +1,441 @@
+INPUT
+
+[
+    {
+        "id": 0,
+        "type": 9,
+        "name": "12G-SDI",
+        "step": 0,
+        "supportFrameRate": "23.98|24.00|25.00|29.97|30.00|47.95|48.00|50.00|59.94|60.00|71.93|72.00|75.00|100.00|119.88|120.00|143.86|144.00|240.00",
+        "supportResolution": "3840*2160",
+        "maxwidth": 4096,
+        "maxheight": 4096,
+        "minwidth": 800,
+        "minheight": 600,
+        "actualResolution": {
+            "height": 2160,
+            "width": 3840
+        },
+        "actualRefreshRate": 60,
+        "bitDepth": 0,
+        "colorSpace": "RGB 4:4:4",
+        "dynamicRange": "SDR",
+        "gamut": "",
+        "range": 0,
+        "scanMode": 0,
+        "inPhase": false,
+        "defaultEDID": {
+            "resolution": {
+                "width": 3840,
+                "height": 2160
+            },
+            "refreshRate": 60
+        },
+        "usable": true,
+        "groupId": 72,
+        "isSupportHDR": true,
+        "isSupportMetaData": false,
+        "isSupportEDID": false,
+        "isSupportInputOverride": true,
+        "isSupportColorAdjust": true,
+        "sourceChannel": 7,
+        "metaData": {
+            "minMasterDisplayLight": 0,
+            "maxMasterDisplayLight": 0,
+            "maxContentLight": 0,
+            "maxFrameAvgLight": 0,
+            "whitePointX": 0,
+            "whitePointY": 0
+        },
+        "hDRParams": {
+            "overrideHdrType": 2,
+            "pqMode": 0,
+            "pqMaxCllChecked": true,
+            "pqMaxCll": 1000,
+            "realHdrType": 2
+        },
+        "isSupportHDRParams": true,
+        "isSupportPQMaxCllChecked": false,
+        "hdrList": [
+            0,
+            1,
+            2
+        ]
+    },
+    {
+        "id": 5,
+        "type": 5,
+        "name": "DP1.2",
+        "step": 4,
+        "supportFrameRate": "23.98|24.00|25.00|29.97|30.00|47.95|48.00|50.00|59.94|60.00|71.93|72.00|75.00|100.00|119.88|120.00|143.86|144.00|240.00",
+        "supportResolution": "800*600|1024*768|1152*864|1280*720|1280*800|1440*900|1600*900|1600*1200|1680*1050|1920*1080|1920*1200|2048*1080|2048*1152|2304*1024|2304*1152|2560*1080|2560*1440|2560*1600|2880*1800|3840*1080|3840*2160",
+        "maxwidth": 4092,
+        "maxheight": 4095,
+        "minwidth": 800,
+        "minheight": 600,
+        "actualResolution": {
+            "height": 2160,
+            "width": 3840
+        },
+        "actualRefreshRate": 60,
+        "bitDepth": 0,
+        "colorSpace": "RGB 4:4:4",
+        "dynamicRange": "SDR",
+        "gamut": "",
+        "range": 0,
+        "scanMode": 0,
+        "inPhase": false,
+        "defaultEDID": {
+            "resolution": {
+                "width": 3840,
+                "height": 2160
+            },
+            "refreshRate": 60
+        },
+        "usable": true,
+        "groupId": 40,
+        "isSupportHDR": true,
+        "isSupportMetaData": false,
+        "isSupportEDID": true,
+        "isSupportInputOverride": true,
+        "isSupportColorAdjust": true,
+        "sourceChannel": 6,
+        "metaData": {
+            "minMasterDisplayLight": 0,
+            "maxMasterDisplayLight": 0,
+            "maxContentLight": 0,
+            "maxFrameAvgLight": 0,
+            "whitePointX": 0,
+            "whitePointY": 0
+        },
+        "hDRParams": {
+            "overrideHdrType": 2,
+            "pqMode": 0,
+            "pqMaxCllChecked": true,
+            "pqMaxCll": 1000,
+            "realHdrType": 2
+        },
+        "isSupportHDRParams": true,
+        "isSupportPQMaxCllChecked": false,
+        "hdrList": [
+            0,
+            1,
+            2
+        ]
+    },
+    {
+        "id": 4,
+        "type": 3,
+        "name": "HDMI2.0 1",
+        "step": 4,
+        "supportFrameRate": "23.98|24.00|25.00|29.97|30.00|47.95|48.00|50.00|59.94|60.00|71.93|72.00|75.00|100.00|119.88|120.00|143.86|144.00|240.00",
+        "supportResolution": "800*600|1024*768|1152*864|1280*720|1280*800|1440*900|1600*900|1600*1200|1680*1050|1920*1080|1920*1200|2048*1080|2048*1152|2304*1024|2304*1152|2560*1080|2560*1440|2560*1600|2880*1800|3840*1080|3840*2160",
+        "maxwidth": 4092,
+        "maxheight": 4095,
+        "minwidth": 800,
+        "minheight": 600,
+        "actualResolution": {
+            "height": 2160,
+            "width": 3840
+        },
+        "actualRefreshRate": 60,
+        "bitDepth": 0,
+        "colorSpace": "RGB 4:4:4",
+        "dynamicRange": "SDR",
+        "gamut": "",
+        "range": 0,
+        "scanMode": 0,
+        "inPhase": false,
+        "defaultEDID": {
+            "resolution": {
+                "width": 3840,
+                "height": 2160
+            },
+            "refreshRate": 60
+        },
+        "usable": true,
+        "groupId": 25,
+        "isSupportHDR": true,
+        "isSupportMetaData": true,
+        "isSupportEDID": true,
+        "isSupportInputOverride": true,
+        "isSupportColorAdjust": true,
+        "sourceChannel": 5,
+        "metaData": {
+            "minMasterDisplayLight": 0,
+            "maxMasterDisplayLight": 0,
+            "maxContentLight": 0,
+            "maxFrameAvgLight": 0,
+            "whitePointX": 0,
+            "whitePointY": 0
+        },
+        "hDRParams": {
+            "overrideHdrType": 255,
+            "pqMode": 0,
+            "pqMaxCllChecked": false,
+            "pqMaxCll": 1000,
+            "realHdrType": 2
+        },
+        "isSupportHDRParams": true,
+        "isSupportPQMaxCllChecked": true,
+        "hdrList": [
+            255,
+            0,
+            1,
+            2
+        ]
+    },
+    {
+        "id": 2,
+        "type": 3,
+        "name": "HDMI2.0 2",
+        "step": 4,
+        "supportFrameRate": "23.98|24.00|25.00|29.97|30.00|47.95|48.00|50.00|59.94|60.00|71.93|72.00|75.00|100.00|119.88|120.00|143.86|144.00|240.00",
+        "supportResolution": "800*600|1024*768|1152*864|1280*720|1280*800|1440*900|1600*900|1600*1200|1680*1050|1920*1080|1920*1200|2048*1080|2048*1152|2304*1024|2304*1152|2560*1080|2560*1440|2560*1600|2880*1800|3840*1080|3840*2160",
+        "maxwidth": 4092,
+        "maxheight": 4095,
+        "minwidth": 800,
+        "minheight": 600,
+        "actualResolution": {
+            "height": 2160,
+            "width": 3840
+        },
+        "actualRefreshRate": 60,
+        "bitDepth": 0,
+        "colorSpace": "RGB 4:4:4",
+        "dynamicRange": "SDR",
+        "gamut": "",
+        "range": 0,
+        "scanMode": 0,
+        "inPhase": false,
+        "defaultEDID": {
+            "resolution": {
+                "width": 3840,
+                "height": 2160
+            },
+            "refreshRate": 60
+        },
+        "usable": true,
+        "groupId": 26,
+        "isSupportHDR": true,
+        "isSupportMetaData": true,
+        "isSupportEDID": true,
+        "isSupportInputOverride": true,
+        "isSupportColorAdjust": true,
+        "sourceChannel": 4,
+        "metaData": {
+            "minMasterDisplayLight": 0,
+            "maxMasterDisplayLight": 0,
+            "maxContentLight": 0,
+            "maxFrameAvgLight": 0,
+            "whitePointX": 0,
+            "whitePointY": 0
+        },
+        "hDRParams": {
+            "overrideHdrType": 255,
+            "pqMode": 0,
+            "pqMaxCllChecked": false,
+            "pqMaxCll": 1000,
+            "realHdrType": 2
+        },
+        "isSupportHDRParams": true,
+        "isSupportPQMaxCllChecked": true,
+        "hdrList": [
+            255,
+            0,
+            1,
+            2
+        ]
+    },
+    {
+        "id": 3,
+        "type": 3,
+        "name": "HDMI2.0 3",
+        "step": 4,
+        "supportFrameRate": "23.98|24.00|25.00|29.97|30.00|47.95|48.00|50.00|59.94|60.00|71.93|72.00|75.00|100.00|119.88|120.00|143.86|144.00|240.00",
+        "supportResolution": "800*600|1024*768|1152*864|1280*720|1280*800|1440*900|1600*900|1600*1200|1680*1050|1920*1080|1920*1200|2048*1080|2048*1152|2304*1024|2304*1152|2560*1080|2560*1440|2560*1600|2880*1800|3840*1080|3840*2160",
+        "maxwidth": 4092,
+        "maxheight": 4095,
+        "minwidth": 800,
+        "minheight": 600,
+        "actualResolution": {
+            "height": 2160,
+            "width": 3840
+        },
+        "actualRefreshRate": 60,
+        "bitDepth": 0,
+        "colorSpace": "RGB 4:4:4",
+        "dynamicRange": "SDR",
+        "gamut": "",
+        "range": 0,
+        "scanMode": 0,
+        "inPhase": false,
+        "defaultEDID": {
+            "resolution": {
+                "width": 3840,
+                "height": 2160
+            },
+            "refreshRate": 60
+        },
+        "usable": true,
+        "groupId": 27,
+        "isSupportHDR": true,
+        "isSupportMetaData": true,
+        "isSupportEDID": true,
+        "isSupportInputOverride": true,
+        "isSupportColorAdjust": true,
+        "sourceChannel": 3,
+        "metaData": {
+            "minMasterDisplayLight": 0,
+            "maxMasterDisplayLight": 0,
+            "maxContentLight": 0,
+            "maxFrameAvgLight": 0,
+            "whitePointX": 0,
+            "whitePointY": 0
+        },
+        "hDRParams": {
+            "overrideHdrType": 255,
+            "pqMode": 0,
+            "pqMaxCllChecked": false,
+            "pqMaxCll": 1000,
+            "realHdrType": 2
+        },
+        "isSupportHDRParams": true,
+        "isSupportPQMaxCllChecked": true,
+        "hdrList": [
+            255,
+            0,
+            1,
+            2
+        ]
+    },
+    {
+        "id": 1,
+        "type": 224,
+        "name": "internal-source",
+        "step": 4,
+        "supportFrameRate": "23.98|24.00|25.00|29.97|30.00|47.95|48.00|50.00|59.94|60.00|71.93|72.00|75.00|100.00|119.88|120.00|143.86|144.00|240.00",
+        "supportResolution": "800*600|1024*768|1152*864|1280*720|1280*800|1440*900|1600*900|1600*1200|1680*1050|1920*1080|1920*1200|2048*1080|2048*1152|2304*1024|2304*1152|2560*1080|2560*1440|2560*1600|2880*1800|3840*1080|3840*2160",
+        "maxwidth": 4096,
+        "maxheight": 4096,
+        "minwidth": 800,
+        "minheight": 600,
+        "actualResolution": {
+            "height": 2160,
+            "width": 3840
+        },
+        "actualRefreshRate": 60,
+        "bitDepth": 0,
+        "colorSpace": "RGB 4:4:4",
+        "dynamicRange": "SDR",
+        "gamut": "DCI-P3",
+        "range": 1,
+        "scanMode": 0,
+        "inPhase": false,
+        "defaultEDID": {
+            "resolution": {
+                "width": 3840,
+                "height": 2160
+            },
+            "refreshRate": 60
+        },
+        "usable": true,
+        "groupId": 224,
+        "isSupportHDR": false,
+        "isSupportMetaData": false,
+        "isSupportEDID": true,
+        "isSupportInputOverride": true,
+        "isSupportColorAdjust": true,
+        "sourceChannel": 8,
+        "metaData": {
+            "minMasterDisplayLight": 0,
+            "maxMasterDisplayLight": 0,
+            "maxContentLight": 0,
+            "maxFrameAvgLight": 0,
+            "whitePointX": 0,
+            "whitePointY": 0
+        },
+        "hDRParams": {
+            "overrideHdrType": 255,
+            "pqMode": 0,
+            "pqMaxCllChecked": false,
+            "pqMaxCll": 1000,
+            "realHdrType": 2
+        },
+        "isSupportHDRParams": true,
+        "isSupportPQMaxCllChecked": true,
+        "hdrList": null
+    }
+]
+
+
+CABINETS
+
+[
+    {
+        "resolution": {
+            "width": 128,
+            "height": 128
+        },
+        "size": {
+            "width": 10,
+            "height": 1
+        },
+        "weight": 0,
+        "power": 42,
+        "gamma": {
+            "r": 2.5,
+            "g": 2.5,
+            "b": 2.5
+        },
+        "colorTemperature": 6123,
+        "voltage": 0,
+        "rvCardName": "Unknown",
+        "brightness": 0.996337,
+        "customGamma": false,
+        "gain": {
+            "r": 43,
+            "g": 43,
+            "b": 43
+        },
+        "outputID": 0,
+        "index": 0,
+        "bunchesIndex": 0,
+        "id": 3900900003282944,
+        "moduleCount": 8,
+        "cabType": "",
+        "indicatorLightState": true,
+        "manufacture": "",
+        "pointSpacing": "",
+        "shortName": "",
+        "familyName": "",
+        "ncpVersion": "",
+        "vsFreMax": 0,
+        "angle": 0,
+        "moduleSize": {
+            "overwrite": false,
+            "moduleRow": 255,
+            "moduleCol": 255
+        },
+        "rvCardInfo": {
+            "firmware": "4.1.0.0",
+            "driverChip": "",
+            "decodeIc": "",
+            "scanNumber": 16,
+            "moduleResolution": {
+                "width": 64,
+                "height": 32
+            },
+            "refreshRate": 240,
+            "grayScale": 13
+        },
+        "cabinetFileParam": {
+            "manufactureName": "",
+            "cabinetName": "",
+            "cardModel": "",
+            "status": "",
+            "version": "",
+            "issue": 0
+        }
+    }
+]
