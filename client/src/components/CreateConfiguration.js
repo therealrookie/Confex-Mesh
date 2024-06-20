@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import "../sass/configuration.css";
 import styled from "styled-components";
 import { newTimeline } from "../services/createTimeline";
 import { useQuery } from "@tanstack/react-query";
 import { getPlayers } from "../services/database";
+import RatioTabs from "./RatioTabs";
 
 const Container = styled.div`
   display: flex;
@@ -51,10 +52,11 @@ const ComponentContainer = styled.div`
 `;
 
 const ScreenContainer = styled.div`
-  width: 100%;
+  width: 800px;
   border: 2px dashed #ccc;
   height: 50px;
   margin: 20px 0; /* Just to separate the screen and the shapes */
+  position: relative;
 `;
 
 const ShapeContainer = styled.div`
@@ -68,16 +70,127 @@ const ShapeContainer = styled.div`
 
 const CreateConfiguration = () => {
   const [activeTab, setActiveTab] = useState("144:9");
+  const [draggingShape, setDraggingShape] = useState(null);
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const [isOverScreenContainer, setIsOverScreenContainer] = useState(false);
 
   const playersQuery = useQuery({
     queryKey: ["players"],
     queryFn: getPlayers,
   });
 
-  const matchingPlayers = (ratio) => {
+  const handleMouseMove = (event) => {
+    event.preventDefault();
+    if (draggingShape) {
+      const copy = document.getElementById("draggingShapeCopy");
+      const screenContainer = document.getElementById("screenContainer");
+
+      if (copy && screenContainer) {
+        const { clientX, clientY } = event;
+        const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+        copy.style.left = `${clientX + scrollLeft - copy.offsetWidth / 2}px`;
+        copy.style.top = `${clientY + scrollTop - copy.offsetHeight / 2}px`;
+
+        const containerRect = screenContainer.getBoundingClientRect();
+        if (
+          clientX >= containerRect.left &&
+          clientX <= containerRect.right &&
+          clientY >= containerRect.top &&
+          clientY <= containerRect.bottom
+        ) {
+          setIsOverScreenContainer(true);
+        } else {
+          setIsOverScreenContainer(false);
+        }
+      }
+    }
+  };
+
+  const handleMouseUp = (event) => {
+    if (draggingShape) {
+      const copy = document.getElementById("draggingShapeCopy");
+      if (isOverScreenContainer && copy) {
+        const screenContainer = document.getElementById("screenContainer");
+        const containerRect = screenContainer.getBoundingClientRect();
+        const { clientX, clientY } = event;
+        const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+        // Calculate position relative to ScreenContainer
+        const left = clientX + scrollLeft - containerRect.left - copy.offsetWidth / 2;
+        const top = clientY + scrollTop - containerRect.top - copy.offsetHeight / 2;
+
+        copy.style.left = `${left}px`;
+        copy.style.top = `${top}px`;
+        copy.style.position = "absolute";
+
+        // Append the copy to the ScreenContainer
+        screenContainer.appendChild(copy);
+      } else if (copy) {
+        copy.remove();
+      }
+      setDraggingShape(null);
+    }
+  };
+
+  const handleMouseDown = (event, player, zone, ratio) => {
+    event.preventDefault();
+
+    setOffset({
+      x: event.clientX,
+      y: event.clientY,
+    });
+
+    const shapeCopy = document.createElement("div");
+    shapeCopy.id = "draggingShapeCopy";
+    shapeCopy.style.position = "absolute";
+    shapeCopy.style.width = `${(50 * parseInt(ratio.split(":")[0], 10)) / parseInt(ratio.split(":")[1], 10)}px`;
+    shapeCopy.style.height = "50px";
+    shapeCopy.style.backgroundColor = "#e0e0e0";
+    shapeCopy.style.border = "1px solid #000";
+    shapeCopy.style.borderRadius = "4px";
+    shapeCopy.style.display = "flex";
+    shapeCopy.style.justifyContent = "center";
+    shapeCopy.style.alignItems = "center";
+    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    shapeCopy.style.left = `${event.clientX + scrollLeft - shapeCopy.offsetWidth / 2}px`;
+    shapeCopy.style.top = `${event.clientY + scrollTop - shapeCopy.offsetHeight / 2}px`;
+    shapeCopy.textContent = `Zone ${zone}: ${ratio}`;
+    shapeCopy.dataset.playerId = player.id;
+    shapeCopy.dataset.zone = zone;
+    shapeCopy.dataset.ratio = ratio;
+
+    document.body.appendChild(shapeCopy);
+    setDraggingShape(shapeCopy);
+  };
+
+  const handleMouseEnter = () => {
+    setIsOverScreenContainer(true);
+    console.log("TRUE");
+  };
+
+  const handleMouseLeave = () => {
+    setIsOverScreenContainer(false);
+    console.log("FALSE");
+  };
+
+  React.useEffect(() => {
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [draggingShape]);
+
+  const matchingPlayers = (playerRatio) => {
     if (!playersQuery.data) return null;
 
-    const filteredPlayers = playersQuery.data.filter((player) => Object.values(player.zones).includes(ratio));
+    const filteredPlayers = playersQuery.data.filter((player) => Object.values(player.zones).includes(playerRatio));
 
     return (
       <Container>
@@ -86,17 +199,21 @@ const CreateConfiguration = () => {
             <PlayerContainer key={player.id}>
               <h4>{player.name}</h4>
               <ZoneContainer>
-                {Object.entries(player.zones).map(([zone, ratio]) => (
-                  <ZoneShape
-                    key={zone}
-                    $ratioWidth={parseInt(ratio.split(":")[0], 10)}
-                    $ratioHeight={parseInt(ratio.split(":")[1], 10)}
-                  >
-                    <ZoneText>
-                      Zone {zone}: {ratio}
-                    </ZoneText>
-                  </ZoneShape>
-                ))}
+                {Object.entries(player.zones).map(
+                  ([zone, ratio]) =>
+                    ratio === playerRatio && (
+                      <ZoneShape
+                        key={zone}
+                        $ratioWidth={parseInt(ratio.split(":")[0], 10)}
+                        $ratioHeight={parseInt(ratio.split(":")[1], 10)}
+                        onMouseDown={(event) => handleMouseDown(event, player, zone, ratio)}
+                      >
+                        <ZoneText>
+                          Zone {zone}: {ratio}
+                        </ZoneText>
+                      </ZoneShape>
+                    )
+                )}
               </ZoneContainer>
             </PlayerContainer>
           ))
@@ -107,51 +224,16 @@ const CreateConfiguration = () => {
     );
   };
 
-  const renderShapes = () => {
-    switch (activeTab) {
-      case "144:9":
-        return <div>Display shapes for 144:9</div>;
-      case "64:9":
-        return <div>Display shapes for 64:9</div>;
-      case "32:9":
-        return <div>Display shapes for 32:9</div>;
-      case "16:9":
-        return <div>Display shapes for 16:9</div>;
-      default:
-        return null;
-    }
-  };
-
   return (
     <div>
       <h1>Matrix Configuration</h1>
-      <ScreenContainer></ScreenContainer>
-      <ul className="nav nav-tabs nav-justified">
-        <li className="nav-item">
-          <a className={`nav-link ${activeTab === "144:9" ? "active" : ""}`} onClick={() => setActiveTab("144:9")}>
-            144:9
-          </a>
-        </li>
-        <li className="nav-item">
-          <a className={`nav-link ${activeTab === "64:9" ? "active" : ""}`} onClick={() => setActiveTab("64:9")}>
-            64:9
-          </a>
-        </li>
-        <li className="nav-item">
-          <a className={`nav-link ${activeTab === "32:9" ? "active" : ""}`} onClick={() => setActiveTab("32:9")}>
-            32:9
-          </a>
-        </li>
-        <li className="nav-item">
-          <a className={`nav-link ${activeTab === "16:9" ? "active" : ""}`} onClick={() => setActiveTab("16:9")}>
-            16:9
-          </a>
-        </li>
-      </ul>
-      <ComponentContainer>
-        {renderShapes()}
-        {matchingPlayers(activeTab)}
-      </ComponentContainer>
+      <ScreenContainer
+        id="screenContainer"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      ></ScreenContainer>
+      <RatioTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+      <ComponentContainer>{matchingPlayers(activeTab)}</ComponentContainer>
       <button className="btn btn-danger" id="cancelButton">
         Cancel
       </button>

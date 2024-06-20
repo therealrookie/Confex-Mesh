@@ -21,7 +21,9 @@ const Configuration = () => {
           <EditMatrixProvider>
             <MatrixList />
           </EditMatrixProvider>
-          <Element name="matrix-configuration"></Element>
+          <Element name="matrix-configuration">
+            <CreateConfiguration />
+          </Element>
           <Element name="player-configuration">
             <PlayerConfiguration />
           </Element>

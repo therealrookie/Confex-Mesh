@@ -14,6 +14,10 @@ const novastarRouter = require("./routes/novastar");
 const pixeraRouter = require("./routes/pixera");
 const playerRouter = require("./routes/players");
 
+app.get("/", (req, res) => {
+  res.send("HELLO");
+});
+//app.use("/", "hello");
 app.use("/users", userRouter);
 app.use("/novastar", novastarRouter);
 app.use("/pixera", pixeraRouter);
