@@ -1,24 +1,28 @@
 import axios from "axios";
 
+//const URL = "https://10.10.10.120:5000"
+const PORT = 5000;
+const URL = "http://10.10.10.102";
+
 export function getInputs() {
-  return axios.get("http://localhost:5000/pixera/inputs").then((res) => res.data);
+  return axios.get(`${URL}:${PORT}/pixera/inputs`).then((res) => res.data);
 }
 
 export function getTimelines() {
-  return axios.get("http://localhost:5000/pixera/timeline/names").then((res) => res.data);
+  return axios.get(`${URL}:${PORT}/pixera/timeline/names`).then((res) => res.data);
 }
 
 export function getEffects() {
-  return axios.get("http://localhost:5000/pixera/inputs/effects").then((res) => res.data);
+  return axios.get(`${URL}:${PORT}/pixera/inputs/effects`).then((res) => res.data);
 }
 
 export function setTransportMode(handle, mode) {
-  return axios.get(`http://localhost:5000/pixera/timeline/set-transport/${handle}/${mode}`).then((res) => res.data);
+  return axios.get(`${URL}:${PORT}/pixera/timeline/set-transport/${handle}/${mode}`).then((res) => res.data);
 }
 
 export function setTimelineName(handle, name) {
   return axios
-    .post(`http://localhost:5000/pixera/timeline/set-name`, {
+    .post(`${URL}:${PORT}/pixera/timeline/set-name`, {
       headers: {
         "Content-Type": "application/json",
       },
@@ -29,7 +33,7 @@ export function setTimelineName(handle, name) {
 
 export function createLayer(handle, body) {
   return axios
-    .post(`http://localhost:5000/pixera/layer/create`, {
+    .post(`${URL}:${PORT}/pixera/layer/create`, {
       headers: {
         "Content-Type": "application/json",
       },
@@ -39,16 +43,16 @@ export function createLayer(handle, body) {
 }
 
 export function getLayers(handle) {
-  return axios.get(`http://localhost:5000/pixera/timeline/get-layers/${handle}`).then((res) => res.data);
+  return axios.get(`${URL}:${PORT}/pixera/timeline/get-layers/${handle}`).then((res) => res.data);
 }
 
 export function getLayerData(handle) {
-  return axios.get(`http://localhost:5000/pixera/layer/data/${handle}`).then((res) => res.data);
+  return axios.get(`${URL}:${PORT}/pixera/layer/data/${handle}`).then((res) => res.data);
 }
 
 export function setInputName(handle, name) {
   return axios
-    .post(`http://localhost:5000/pixera/inputs/set-name`, {
+    .post(`${URL}:${PORT}/pixera/inputs/set-name`, {
       headers: {
         "Content-Type": "application/json",
       },
@@ -58,11 +62,11 @@ export function setInputName(handle, name) {
 }
 
 export function removeLayer(handle) {
-  return axios.get(`http://localhost:5000/pixera/layer/remove/${handle}`).then((res) => res.data);
+  return axios.get(`${URL}:${PORT}/pixera/layer/remove/${handle}`).then((res) => res.data);
 }
 
 export function createTimeline() {
-  return axios.get(`http://localhost:5000/pixera/timeline/create-timeline`).then((res) => res.data);
+  return axios.get(`${URL}:${PORT}/pixera/timeline/create-timeline`).then((res) => res.data);
 }
 
 /*

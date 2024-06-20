@@ -1,4 +1,5 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
+import { createRoot } from "react-dom/client";
 import "../sass/configuration.css";
 import styled from "styled-components";
 import { newTimeline } from "../services/createTimeline";
@@ -35,8 +36,9 @@ const ZoneShape = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 50px;
+  height: 52px;
   width: ${(props) => (50 * props.$ratioWidth) / props.$ratioHeight}px; /* Calculate width based on ratio */
+  cursor: move;
 `;
 
 const ZoneText = styled.div`
@@ -44,149 +46,141 @@ const ZoneText = styled.div`
   text-align: center;
   white-space: nowrap;
 `;
+
 const ComponentContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center:
+  justify-content: center;
 `;
 
 const ScreenContainer = styled.div`
   width: 800px;
   border: 2px dashed #ccc;
   height: 50px;
-  margin: 20px 0; /* Just to separate the screen and the shapes */
+  margin: 20px 0;
   position: relative;
 `;
 
-const ShapeContainer = styled.div`
-  width: 100%;
+const DraggableShape = styled.div`
+  position: absolute;
+  border: 1px solid #000;
+  border-radius: 4px;
+  background-color: #e0e0e0;
   display: flex;
-  flex-wrap: wrap;
+  justify-content: center;
   align-items: center;
-  justify-content: center:
-
+  height: 50px;
+  cursor: move;
+  width: ${(props) => (50 * props.$ratioWidth) / props.$ratioHeight}px;
 `;
 
 const CreateConfiguration = () => {
   const [activeTab, setActiveTab] = useState("144:9");
-  const [draggingShape, setDraggingShape] = useState(null);
-  const [offset, setOffset] = useState({ x: 0, y: 0 });
-  const [isOverScreenContainer, setIsOverScreenContainer] = useState(false);
+  const [shapes, setShapes] = useState([]); // State to track shapes
 
   const playersQuery = useQuery({
     queryKey: ["players"],
     queryFn: getPlayers,
   });
 
-  const handleMouseMove = (event) => {
+  const allowDrop = (event) => {
     event.preventDefault();
-    if (draggingShape) {
-      const copy = document.getElementById("draggingShapeCopy");
-      const screenContainer = document.getElementById("screenContainer");
+  };
 
-      if (copy && screenContainer) {
-        const { clientX, clientY } = event;
-        const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+  const drag = (event, player, zone, ratio) => {
+    const dragData = JSON.stringify({ player, zone, ratio });
+    event.dataTransfer.setData("application/json", dragData);
+  };
 
-        copy.style.left = `${clientX + scrollLeft - copy.offsetWidth / 2}px`;
-        copy.style.top = `${clientY + scrollTop - copy.offsetHeight / 2}px`;
+  const dragInsideContainer = (event) => {
+    event.dataTransfer.setData("text/plain", event.target.id);
+  };
 
-        const containerRect = screenContainer.getBoundingClientRect();
-        if (
-          clientX >= containerRect.left &&
-          clientX <= containerRect.right &&
-          clientY >= containerRect.top &&
-          clientY <= containerRect.bottom
-        ) {
-          setIsOverScreenContainer(true);
-        } else {
-          setIsOverScreenContainer(false);
-        }
+  const drop = (event) => {
+    event.preventDefault();
+    const jsonData = event.dataTransfer.getData("application/json");
+    const textData = event.dataTransfer.getData("text/plain");
+
+    if (jsonData) {
+      try {
+        const data = JSON.parse(jsonData);
+        handleExternalDrop(event, data);
+      } catch (error) {
+        console.error("Invalid JSON data:", error);
       }
+    } else if (textData) {
+      handleInternalDrop(event, textData);
     }
   };
 
-  const handleMouseUp = (event) => {
-    if (draggingShape) {
-      const copy = document.getElementById("draggingShapeCopy");
-      if (isOverScreenContainer && copy) {
-        const screenContainer = document.getElementById("screenContainer");
-        const containerRect = screenContainer.getBoundingClientRect();
-        const { clientX, clientY } = event;
-        const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+  const handleDragEnd = (event, id) => {
+    const { clientX, clientY } = event;
+    const screenContainer = document.getElementById("screenContainer");
+    const containerRect = screenContainer.getBoundingClientRect();
+    console.log("CLIENTX: ", clientX, containerRect.left, containerRect.right);
+    console.log("CLIENTY: ", clientY, containerRect.top, containerRect.bottom);
 
-        // Calculate position relative to ScreenContainer
-        const left = clientX + scrollLeft - containerRect.left - copy.offsetWidth / 2;
-        const top = clientY + scrollTop - containerRect.top - copy.offsetHeight / 2;
-
-        copy.style.left = `${left}px`;
-        copy.style.top = `${top}px`;
-        copy.style.position = "absolute";
-
-        // Append the copy to the ScreenContainer
-        screenContainer.appendChild(copy);
-      } else if (copy) {
-        copy.remove();
-      }
-      setDraggingShape(null);
+    if (
+      clientX < containerRect.left ||
+      clientX > containerRect.right ||
+      clientY < containerRect.top ||
+      clientY > containerRect.bottom
+    ) {
+      setShapes((prevShapes) => prevShapes.filter((shape) => shape.id !== id)); // Remove shape if dragged outside
+    } else {
+      setShapes((prevShapes) =>
+        prevShapes.map((shape) =>
+          shape.id === id
+            ? {
+                ...shape,
+                left: clientX - containerRect.left - event.target.offsetWidth / 2,
+                top: 0,
+              }
+            : shape
+        )
+      );
     }
   };
 
-  const handleMouseDown = (event, player, zone, ratio) => {
-    event.preventDefault();
+  const handleExternalDrop = (event, data) => {
+    const screenContainer = document.getElementById("screenContainer");
+    const id = `shape-${Math.random().toString(36).substr(2, 9)}`;
+    const left = event.clientX - screenContainer.getBoundingClientRect().left - 25;
+    const top = 0;
 
-    setOffset({
-      x: event.clientX,
-      y: event.clientY,
-    });
-
-    const shapeCopy = document.createElement("div");
-    shapeCopy.id = "draggingShapeCopy";
-    shapeCopy.style.position = "absolute";
-    shapeCopy.style.width = `${(50 * parseInt(ratio.split(":")[0], 10)) / parseInt(ratio.split(":")[1], 10)}px`;
-    shapeCopy.style.height = "50px";
-    shapeCopy.style.backgroundColor = "#e0e0e0";
-    shapeCopy.style.border = "1px solid #000";
-    shapeCopy.style.borderRadius = "4px";
-    shapeCopy.style.display = "flex";
-    shapeCopy.style.justifyContent = "center";
-    shapeCopy.style.alignItems = "center";
-    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    shapeCopy.style.left = `${event.clientX + scrollLeft - shapeCopy.offsetWidth / 2}px`;
-    shapeCopy.style.top = `${event.clientY + scrollTop - shapeCopy.offsetHeight / 2}px`;
-    shapeCopy.textContent = `Zone ${zone}: ${ratio}`;
-    shapeCopy.dataset.playerId = player.id;
-    shapeCopy.dataset.zone = zone;
-    shapeCopy.dataset.ratio = ratio;
-
-    document.body.appendChild(shapeCopy);
-    setDraggingShape(shapeCopy);
-  };
-
-  const handleMouseEnter = () => {
-    setIsOverScreenContainer(true);
-    console.log("TRUE");
-  };
-
-  const handleMouseLeave = () => {
-    setIsOverScreenContainer(false);
-    console.log("FALSE");
-  };
-
-  React.useEffect(() => {
-    document.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseup", handleMouseUp);
-
-    return () => {
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
+    const newShape = {
+      id,
+      ratioWidth: parseInt(data.ratio.split(":")[0], 10),
+      ratioHeight: parseInt(data.ratio.split(":")[1], 10),
+      left,
+      top,
+      zone: data.zone,
     };
-  }, [draggingShape]);
 
+    setShapes((prevShapes) => [...prevShapes, newShape]);
+  };
+
+  const handleInternalDrop = (event, shapeId) => {
+    const { clientX, clientY } = event;
+    const screenContainer = document.getElementById("screenContainer");
+    const containerRect = screenContainer.getBoundingClientRect();
+
+    if (
+      clientX < containerRect.left ||
+      clientX > containerRect.right ||
+      clientY < containerRect.top ||
+      clientY > containerRect.bottom
+    ) {
+      setShapes((prevShapes) => prevShapes.filter((shape) => shape.id !== shapeId)); // Remove shape if dragged outside
+    } else {
+      const newLeft = clientX - containerRect.left - 25;
+      const newTop = 0;
+      setShapes((prevShapes) =>
+        prevShapes.map((shape) => (shape.id === shapeId ? { ...shape, left: newLeft, top: newTop } : shape))
+      );
+    }
+  };
   const matchingPlayers = (playerRatio) => {
     if (!playersQuery.data) return null;
 
@@ -206,7 +200,8 @@ const CreateConfiguration = () => {
                         key={zone}
                         $ratioWidth={parseInt(ratio.split(":")[0], 10)}
                         $ratioHeight={parseInt(ratio.split(":")[1], 10)}
-                        onMouseDown={(event) => handleMouseDown(event, player, zone, ratio)}
+                        draggable
+                        onDragStart={(event) => drag(event, player, zone, ratio)}
                       >
                         <ZoneText>
                           Zone {zone}: {ratio}
@@ -227,11 +222,22 @@ const CreateConfiguration = () => {
   return (
     <div>
       <h1>Matrix Configuration</h1>
-      <ScreenContainer
-        id="screenContainer"
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-      ></ScreenContainer>
+      <ScreenContainer id="screenContainer" onDrop={drop} onDragOver={allowDrop}>
+        {shapes.map((shape) => (
+          <DraggableShape
+            key={shape.id}
+            id={shape.id}
+            $ratioWidth={shape.ratioWidth}
+            $ratioHeight={shape.ratioHeight}
+            style={{ left: shape.left, top: shape.top }}
+            draggable
+            onDragStart={dragInsideContainer}
+            onDragEnd={(event) => handleDragEnd(event, shape.id)}
+          >
+            Zone {shape.zone}: {shape.ratioWidth}:{shape.ratioHeight}
+          </DraggableShape>
+        ))}
+      </ScreenContainer>
       <RatioTabs activeTab={activeTab} setActiveTab={setActiveTab} />
       <ComponentContainer>{matchingPlayers(activeTab)}</ComponentContainer>
       <button className="btn btn-danger" id="cancelButton">
