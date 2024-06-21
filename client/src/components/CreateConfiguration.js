@@ -6,6 +6,8 @@ import { newTimeline } from "../services/createTimeline";
 import { useQuery } from "@tanstack/react-query";
 import { getPlayers } from "../services/database";
 import RatioTabs from "./RatioTabs";
+import { getSnapPosition, clientInsideRect } from "../services/matrixConfigFunctions";
+import { json } from "react-router-dom";
 
 const Container = styled.div`
   display: flex;
@@ -91,10 +93,44 @@ const CreateConfiguration = () => {
   const drag = (event, player, zone, ratio) => {
     const dragData = JSON.stringify({ player, zone, ratio });
     event.dataTransfer.setData("application/json", dragData);
+
+    const shape = event.target;
+    const rect = shape.getBoundingClientRect();
+
+    // Create an invisible clone of the shape to use as drag image
+    const dragImage = shape.cloneNode(true);
+    dragImage.style.position = "absolute";
+    dragImage.style.top = "-1000px"; // Move it out of view
+    document.body.appendChild(dragImage);
+
+    // Set the drag image offset to the center of the shape
+    event.dataTransfer.setDragImage(dragImage, rect.width / 2, rect.height / 2);
+
+    // Clean up the drag image after the drag ends
+    shape.addEventListener("dragend", () => {
+      dragImage.remove();
+    });
   };
 
   const dragInsideContainer = (event) => {
     event.dataTransfer.setData("text/plain", event.target.id);
+
+    const shape = event.target;
+    const rect = shape.getBoundingClientRect();
+
+    // Create an invisible clone of the shape to use as drag image
+    const dragImage = shape.cloneNode(true);
+    dragImage.style.position = "absolute";
+    dragImage.style.top = "-1000px"; // Move it out of view
+    document.body.appendChild(dragImage);
+
+    // Set the drag image offset to the center of the shape
+    event.dataTransfer.setDragImage(dragImage, rect.width / 2, rect.height / 2);
+
+    // Clean up the drag image after the drag ends
+    shape.addEventListener("dragend", () => {
+      dragImage.remove();
+    });
   };
 
   const drop = (event) => {
@@ -102,15 +138,14 @@ const CreateConfiguration = () => {
     const jsonData = event.dataTransfer.getData("application/json");
     const textData = event.dataTransfer.getData("text/plain");
 
-    if (jsonData) {
-      try {
-        const data = JSON.parse(jsonData);
-        handleExternalDrop(event, data);
-      } catch (error) {
-        console.error("Invalid JSON data:", error);
+    try {
+      if (jsonData) {
+        handleExternalDrop(event, JSON.parse(jsonData));
+      } else if (textData) {
+        handleInternalDrop(event, textData);
       }
-    } else if (textData) {
-      handleInternalDrop(event, textData);
+    } catch (error) {
+      console.error("Invalid JSON data:", error);
     }
   };
 
@@ -118,15 +153,8 @@ const CreateConfiguration = () => {
     const { clientX, clientY } = event;
     const screenContainer = document.getElementById("screenContainer");
     const containerRect = screenContainer.getBoundingClientRect();
-    console.log("CLIENTX: ", clientX, containerRect.left, containerRect.right);
-    console.log("CLIENTY: ", clientY, containerRect.top, containerRect.bottom);
 
-    if (
-      clientX < containerRect.left ||
-      clientX > containerRect.right ||
-      clientY < containerRect.top ||
-      clientY > containerRect.bottom
-    ) {
+    if (clientInsideRect(clientX, clientY, containerRect)) {
       setShapes((prevShapes) => prevShapes.filter((shape) => shape.id !== id)); // Remove shape if dragged outside
     } else {
       setShapes((prevShapes) =>
@@ -134,31 +162,56 @@ const CreateConfiguration = () => {
           shape.id === id
             ? {
                 ...shape,
-                left: clientX - containerRect.left - event.target.offsetWidth / 2,
+                left: shape.left, //getSnapPosition(clientX - containerRect.left, [shape.ratioWidth, shape.ratioHeight]),
                 top: 0,
               }
             : shape
         )
       );
     }
+    const thisShape = shapes.find((shape) => shape.id === id);
+    console.log("DRAGEND: ", thisShape.left);
   };
 
-  const handleExternalDrop = (event, data) => {
-    const screenContainer = document.getElementById("screenContainer");
-    const id = `shape-${Math.random().toString(36).substr(2, 9)}`;
-    const left = event.clientX - screenContainer.getBoundingClientRect().left - 25;
-    const top = 0;
+  function createRandomId() {
+    return `shape-${Math.random().toString(36).substr(2, 9)}`;
+  }
 
-    const newShape = {
-      id,
-      ratioWidth: parseInt(data.ratio.split(":")[0], 10),
-      ratioHeight: parseInt(data.ratio.split(":")[1], 10),
-      left,
-      top,
+  function getScreenContainerRect() {
+    const screenContainer = document.getElementById("screenContainer");
+    return screenContainer.getBoundingClientRect();
+  }
+
+  function getRatioArray(ratio) {
+    // i.e. ratio = 64:9
+    return [parseInt(ratio.split(":")[0]), parseInt(ratio.split(":")[1])];
+  }
+
+  function calcLeftPosOfShape(event, ratioArray) {
+    const screenContainerRect = getScreenContainerRect();
+
+    return getSnapPosition(event.clientX - screenContainerRect.left, ratioArray);
+  }
+
+  function getNewShapeData(event, data) {
+    const ratioArray = getRatioArray(data.ratio); // i.e. [64, 9]
+
+    return {
+      id: createRandomId(),
+      ratioWidth: ratioArray[0], // i.e. 64
+      ratioHeight: ratioArray[1], // i.e. 9
+      top: 0,
+      left: calcLeftPosOfShape(event, ratioArray),
       zone: data.zone,
     };
+  }
+
+  const handleExternalDrop = (event, data) => {
+    console.log("EVENT: ", data);
+    const newShape = getNewShapeData(event, data);
 
     setShapes((prevShapes) => [...prevShapes, newShape]);
+    console.log("External Drop: ", newShape.left);
   };
 
   const handleInternalDrop = (event, shapeId) => {
@@ -166,21 +219,21 @@ const CreateConfiguration = () => {
     const screenContainer = document.getElementById("screenContainer");
     const containerRect = screenContainer.getBoundingClientRect();
 
-    if (
-      clientX < containerRect.left ||
-      clientX > containerRect.right ||
-      clientY < containerRect.top ||
-      clientY > containerRect.bottom
-    ) {
+    const shape = shapes.find((shape) => shape.id === shapeId);
+    if (!shape) return;
+
+    if (clientInsideRect(clientX, clientY, containerRect)) {
       setShapes((prevShapes) => prevShapes.filter((shape) => shape.id !== shapeId)); // Remove shape if dragged outside
     } else {
-      const newLeft = clientX - containerRect.left - 25;
+      const newLeft = getSnapPosition(clientX - containerRect.left, [shape.ratioWidth, shape.ratioHeight]);
       const newTop = 0;
       setShapes((prevShapes) =>
         prevShapes.map((shape) => (shape.id === shapeId ? { ...shape, left: newLeft, top: newTop } : shape))
       );
     }
+    console.log("Internal Drop: ", shape.left);
   };
+
   const matchingPlayers = (playerRatio) => {
     if (!playersQuery.data) return null;
 
