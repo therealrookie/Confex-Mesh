@@ -17,21 +17,45 @@ const HardwareInputs = [
 
 const NexshopPlayerStatus = () => {
   const [inputs, setInputs] = useState([]);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const fetchInputs = async () => {
     try {
       const inputResponse = await fetch(`http://localhost:5000/pixera/inputs/`);
-
+      if (!inputResponse.ok) {
+        throw new Error("Network response was not ok");
+      }
       const newInputs = await inputResponse.json();
       setInputs(newInputs);
     } catch (error) {
-      console.error("Error fetching inputs", error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchInputs();
   }, []);
+
+  if (loading) {
+    return (
+      <div className="d-flex justify-content-center">
+        <div className="spinner-border" role="status"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="d-flex justify-content-center">
+        <div className="alert alert-danger" role="alert">
+          Error fetching inputs: {error}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="d-flex justify-content-center flex-wrap">

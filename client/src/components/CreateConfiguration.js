@@ -4,82 +4,27 @@ import "../sass/configuration.css";
 import styled from "styled-components";
 import { newTimeline } from "../services/createTimeline";
 import { useQuery } from "@tanstack/react-query";
-import { getPlayers } from "../services/database";
+import { addMatrix, getPlayers, addZone } from "../services/database";
 import RatioTabs from "./RatioTabs";
 import { getSnapPosition, clientInsideRect } from "../services/matrixConfigFunctions";
 import { json } from "react-router-dom";
-
-const Container = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  margin-bottom: 20px;
-`;
-
-const PlayerContainer = styled.div`
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  background-color: #f9f9f9;
-  display: flex;
-  flex-direction: column;
-`;
-
-const ZoneContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-`;
-
-const ZoneShape = styled.div`
-  position: relative;
-  border: 1px solid #000;
-  border-radius: 4px;
-  margin: 10px 10px;
-  background-color: #e0e0e0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 52px;
-  width: ${(props) => (50 * props.$ratioWidth) / props.$ratioHeight}px; /* Calculate width based on ratio */
-  cursor: move;
-`;
-
-const ZoneText = styled.div`
-  position: absolute;
-  text-align: center;
-  white-space: nowrap;
-`;
-
-const ComponentContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-`;
-
-const ScreenContainer = styled.div`
-  width: 800px;
-  border: 2px dashed #ccc;
-  height: 50px;
-  margin: 20px 0;
-  position: relative;
-`;
-
-const DraggableShape = styled.div`
-  position: absolute;
-  border: 1px solid #000;
-  border-radius: 4px;
-  background-color: #e0e0e0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 50px;
-  cursor: move;
-  width: ${(props) => (50 * props.$ratioWidth) / props.$ratioHeight}px;
-`;
+import {
+  Container,
+  PlayerContainer,
+  ZoneContainer,
+  ZoneShape,
+  ZoneText,
+  ComponentContainer,
+  ScreenContainer,
+  DraggableShape,
+} from "../services/StyledComponents";
+import DragShapeContainer from "./DragShapeContainer";
 
 const CreateConfiguration = () => {
   const [activeTab, setActiveTab] = useState("144:9");
   const [shapes, setShapes] = useState([]); // State to track shapes
+  const [edit, setEdit] = useState("edit");
+  const [name, setName] = useState("");
 
   const playersQuery = useQuery({
     queryKey: ["players"],
@@ -91,7 +36,7 @@ const CreateConfiguration = () => {
   };
 
   const drag = (event, player, zone, ratio) => {
-    const dragData = JSON.stringify({ player, zone, ratio });
+    const dragData = JSON.stringify({ player: player.name, zone, ratio });
     event.dataTransfer.setData("application/json", dragData);
 
     const shape = event.target;
@@ -170,7 +115,6 @@ const CreateConfiguration = () => {
       );
     }
     const thisShape = shapes.find((shape) => shape.id === id);
-    console.log("DRAGEND: ", thisShape.left);
   };
 
   function createRandomId() {
@@ -203,15 +147,14 @@ const CreateConfiguration = () => {
       top: 0,
       left: calcLeftPosOfShape(event, ratioArray),
       zone: data.zone,
+      player: data.player, // Add the player's name to the shape data
     };
   }
 
   const handleExternalDrop = (event, data) => {
-    console.log("EVENT: ", data);
     const newShape = getNewShapeData(event, data);
 
     setShapes((prevShapes) => [...prevShapes, newShape]);
-    console.log("External Drop: ", newShape.left);
   };
 
   const handleInternalDrop = (event, shapeId) => {
@@ -231,50 +174,44 @@ const CreateConfiguration = () => {
         prevShapes.map((shape) => (shape.id === shapeId ? { ...shape, left: newLeft, top: newTop } : shape))
       );
     }
-    console.log("Internal Drop: ", shape.left);
+  };
+
+  function newMatrix() {
+    const matrixData = addMatrix(0, name);
+
+    shapes.map((shape) => {
+      addZone({
+        matrixId: matrixData.matrix_id,
+        playerId: 5,
+        layerHandle: 0,
+        posLeft: shape.posLeft,
+        section: shape.zone,
+      });
+    });
+    const zoneData = clearShapes();
+  }
+
+  const clearShapes = () => {
+    setName("");
+    setEdit("edit");
+    setShapes([]); // Clear the shapes state as well
+    setActiveTab("144:9");
   };
 
   const matchingPlayers = (playerRatio) => {
     if (!playersQuery.data) return null;
 
-    const filteredPlayers = playersQuery.data.filter((player) => Object.values(player.zones).includes(playerRatio));
+    const filteredPlayers = playersQuery.data.filter((player) => Object.values(player.sections).includes(playerRatio));
 
     return (
-      <Container>
-        {filteredPlayers.length > 0 ? (
-          filteredPlayers.map((player) => (
-            <PlayerContainer key={player.id}>
-              <h4>{player.name}</h4>
-              <ZoneContainer>
-                {Object.entries(player.zones).map(
-                  ([zone, ratio]) =>
-                    ratio === playerRatio && (
-                      <ZoneShape
-                        key={zone}
-                        $ratioWidth={parseInt(ratio.split(":")[0], 10)}
-                        $ratioHeight={parseInt(ratio.split(":")[1], 10)}
-                        draggable
-                        onDragStart={(event) => drag(event, player, zone, ratio)}
-                      >
-                        <ZoneText>
-                          Zone {zone}: {ratio}
-                        </ZoneText>
-                      </ZoneShape>
-                    )
-                )}
-              </ZoneContainer>
-            </PlayerContainer>
-          ))
-        ) : (
-          <p>No players with matching ratios found.</p>
-        )}
-      </Container>
+      <DragShapeContainer filteredPlayers={filteredPlayers} playerRatio={playerRatio} drag={drag} setEdit={setEdit} />
     );
   };
 
   return (
     <div>
       <h1>Matrix Configuration</h1>
+      <p>Drag and drop zones on the Matrix.</p>
       <ScreenContainer id="screenContainer" onDrop={drop} onDragOver={allowDrop}>
         {shapes.map((shape) => (
           <DraggableShape
@@ -288,64 +225,80 @@ const CreateConfiguration = () => {
             onDragEnd={(event) => handleDragEnd(event, shape.id)}
           >
             Zone {shape.zone}: {shape.ratioWidth}:{shape.ratioHeight}
+            <div>{shape.player}</div>
           </DraggableShape>
         ))}
       </ScreenContainer>
-      <RatioTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-      <ComponentContainer>{matchingPlayers(activeTab)}</ComponentContainer>
-      <button className="btn btn-danger" id="cancelButton">
-        Cancel
-      </button>
-      <button
-        className="btn btn-success"
-        id="saveButton"
-        onClick={() => {
-          newTimeline();
-        }}
-      >
-        Save
-      </button>
+      {edit === "edit" && (
+        <ComponentContainer>
+          <RatioTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+          {matchingPlayers(activeTab)}
+          <button
+            className="btn btn-danger"
+            onClick={() => {
+              setEdit("cancel");
+            }}
+          >
+            Cancel
+          </button>
+          <button
+            className="btn btn-success"
+            onClick={() => {
+              setEdit("save");
+            }}
+          >
+            Save
+          </button>
+        </ComponentContainer>
+      )}
+      {edit === "cancel" && (
+        <div>
+          <h4>Discard the current Matrix</h4>
+          <p>Do you really want to delete the Matrix</p>
+          <button
+            className="btn btn-success"
+            onClick={() => {
+              setEdit("edit");
+            }}
+          >
+            No
+          </button>
+          <button
+            className="btn btn-danger"
+            onClick={() => {
+              clearShapes();
+            }}
+          >
+            Yes
+          </button>
+        </div>
+      )}
+      {edit === "save" && (
+        <div>
+          <h4>Save the current Matrix</h4>
+          <p>Do you really want to save this Matrix</p>
+          <input type="text" value={name} onChange={(e) => setName(e.target.value)} />{" "}
+          <button
+            className="btn btn-danger"
+            onClick={() => {
+              setEdit("edit");
+            }}
+          >
+            No
+          </button>
+          <button
+            className="btn btn-success"
+            onClick={() => {
+              newMatrix();
+            }}
+            disabled={name === ""}
+          >
+            Yes
+          </button>
+        </div>
+      )}
     </div>
   );
 };
 
 export default CreateConfiguration;
-
-/*
-
-  // State for shapes that can be dragged into the ScreenContainer
-  const [shapes, setShapes] = useState([
-    { id: "shape-2", ratio: "16:9" },
-    { id: "shape-4", ratio: "32:9" },
-    { id: "shape-5", ratio: "64:9" },
-    { id: "shape-6", ratio: "144:9" },
-  ]);
-
-      <ComponentContainer>
-        <DragDropContext onDragEnd={onDragEnd}>
-          <Droppable droppableId="screenContainer" isDropDisabled={true}>
-            {(provided, snapshot) => (
-              <ScreenContainer
-                ref={provided.innerRef}
-                {...provided.droppableProps}
-                isDraggingOver={snapshot.isDraggingOver.toString()}
-              >
-                {provided.placeholder}
-              </ScreenContainer>
-            )}
-          </Droppable>
-          <Droppable droppableId="shapeContainer" direction="horizontal">
-            {(provided, snapshot) => (
-              <ShapeContainer ref={provided.innerRef} {...provided.droppableProps}>
-                {shapes.map((shape, index) => (
-                  <Shape key={shape.id} id={shape.id} ratio={shape.ratio} index={index} />
-                ))}
-                {provided.placeholder}
-              </ShapeContainer>
-            )}
-          </Droppable>
-        </DragDropContext>
-      </ComponentContainer>
-
-
-*/

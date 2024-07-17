@@ -17,136 +17,127 @@ CREATE TABLE users(
 );
 
 CREATE TABLE players (
-    id SERIAL PRIMARY KEY,
-    name TEXT,
-    input JSONB,
-    zones JSONB,
-    resolution TEXT,
-    handle JSONB,
-    resid JSONB
+    player_id SERIAL PRIMARY KEY,
+    name VARCHAR(255),
+    input VARCHAR(255),
+    sections JSONB,
+    resolution VARCHAR(255),
+    resource_handle VARCHAR(255)
 );
 
-CREATE TABLE timelines (
-    handle BIGINT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL
+CREATE TABLE matrices (
+    matrix_id SERIAL PRIMARY KEY,
+    timeline_handle BIGINT,
+    name VARCHAR(255)
 );
 
-CREATE TABLE layers (
-    handle BIGINT PRIMARY KEY,
-    timeline_handle BIGINT NOT NULL,
-    name VARCHAR(255) NOT NULL,
-    pos_left NUMERIC(10, 5),
-    width NUMERIC(10, 5),
-    player TEXT NOT NULL,
-    zone TEXT NOT NULL
+CREATE TABLE zones (
+    zone_id SERIAL PRIMARY KEY,
+    matrix_id INTEGER,
+    player_id INTEGER,
+    layer_handle BIGINT,
+    pos_left VARCHAR(255),
+    section VARCHAR(255)
 );
+
+DROP TABLE todo;
+
 
 -- Inserting data for player 1
-INSERT INTO players (name, input, zones, resolution, handle, resid)
+INSERT INTO players (name, input, sections, resolution, resource_handle)
 VALUES
 (
-    'player 1',
-    '["HDMI 1", "HDMI 2"]'::JSONB,
+    'player 1',     
+    'HDMI 1',   
     '{"1": "144:9"}'::JSONB,
-    '',
-    '[0, 0]'::JSONB,
-    '[0, 0]'::JSONB
+    '7440x465',
+    '0'
 );
 
 -- Inserting data for player 2
-INSERT INTO players (name, input, zones, resolution, handle, resid)
+INSERT INTO players (name, input, sections, resolution, resource_handle)
 VALUES
 (
     'player 2',
-    '["HDMI 3"]'::JSONB,
+    'HDMI 3',
     '{"1": "64:9", "2.1": "32:9", "2.2": "32:9", "4.1": "16:9", "4.2": "16:9", "4.3": "16:9", "4.4": "16:9"}'::JSONB,
-    '',
-    '0'::JSONB,
-    '0'::JSONB
+    '3304x465',
+    '0'
 );
 
 -- Inserting data for player 3
-INSERT INTO players (name, input, zones, resolution, handle, resid)
+INSERT INTO players (name, input, sections, resolution, resource_handle)
 VALUES
 (
     'player 3',
-    '["HDMI 4"]'::JSONB,
+    'HDMI 3',
     '{"1": "64:9", "2.1": "32:9", "2.2": "32:9", "4.1": "16:9", "4.2": "16:9", "4.3": "16:9", "4.4": "16:9"}'::JSONB,
-    '',
-    '0'::JSONB,
-    '0'::JSONB
+    '3304x465',
+    '0'
 );
 
--- Inserting data for players 4 to 7 (similar structure)
-INSERT INTO players (name, input, zones, resolution, handle, resid)
+-- Inserting data for players 4 to 7
+INSERT INTO players (name, input, sections, resolution, resource_handle)
 VALUES
 (
     'player 4',
-    '["SDI 1"]'::JSONB,
+    'SDI 1',
     '{"1": "32:9", "2.1": "16:9", "2.2": "16:9"}'::JSONB,
-    '',
-    '0'::JSONB,
-    '0'::JSONB
+    '1652x465',
+    '0'
 ),
 (
     'player 5',
-    '["SDI 2"]'::JSONB,
+    'SDI 2',
     '{"1": "32:9", "2.1": "16:9", "2.2": "16:9"}'::JSONB,
-    '',
-    '0'::JSONB,
-    '0'::JSONB
+    '1652x465',
+    '0'
 ),
 (
     'player 6',
-    '["SDI 3"]'::JSONB,
+    'SDI 3',
     '{"1": "32:9", "2.1": "16:9", "2.2": "16:9"}'::JSONB,
-    '',
-    '0'::JSONB,
-    '0'::JSONB
+    '1652x465',
+    '0'
 ),
 (
     'player 7',
-    '["SDI 4"]'::JSONB,
+    'SDI 4',
     '{"1": "32:9", "2.1": "16:9", "2.2": "16:9"}'::JSONB,
-    '',
-    '0'::JSONB,
-    '0'::JSONB
+    '1652x465',
+    '0'
 );
 
--- Inserting data for players 8 to 11 (similar structure, simpler zones)
-INSERT INTO players (name, input, zones, resolution, handle, resid)
+-- Inserting data for players 8 to 11
+INSERT INTO players (name, input, sections, resolution, resource_handle)
 VALUES
 (
     'player 8',
-    '["SDI 5"]'::JSONB,
+    'SDI 5',
     '{"1": "16:9"}'::JSONB,
-    '',
-    '0'::JSONB,
-    '0'::JSONB
+    '826x465',
+    '0'
 ),
 (
     'player 9',
-    '["SDI 6"]'::JSONB,
+    'SDI 6',
     '{"1": "16:9"}'::JSONB,
-    '',
-    '0'::JSONB,
-    '0'::JSONB
+    '826x465',
+    '0'
 ),
 (
     'player 10',
-    '["SDI 7"]'::JSONB,
+    'SDI 7',
     '{"1": "16:9"}'::JSONB,
-    '',
-    '0'::JSONB,
-    '0'::JSONB
+    '826x465',
+    '0'
 ),
 (
     'player 11',
-    '["SDI 8"]'::JSONB,
+    'SDI 8',
     '{"1": "16:9"}'::JSONB,
-    '',
-    '0'::JSONB,
-    '0'::JSONB
+    '826x465',
+    '0'
 );
 
 

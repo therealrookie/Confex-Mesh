@@ -10,6 +10,7 @@ import Control from "./pages/Control";
 import Admin from "./pages/Admin";
 import Account from "./pages/Account";
 import Login from "./pages/Login";
+import Footer from "./components/Footer";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
         <Route path="/account" element={<Account />} />
         <Route path="/logout" element={<Login />} />
       </Routes>
+      <Footer />
     </Fragment>
   );
 }

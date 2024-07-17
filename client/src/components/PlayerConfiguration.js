@@ -1,12 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import styled from "styled-components";
-import { EditIcon, SdiIcon, HdmiIcon } from "../assets/icons";
 import InputData from "./InputData";
 import PlayerName from "./PlayerName";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getInputs, setInputName } from "../services/api";
 import { getPlayers, updatePlayer } from "../services/database";
-import axios from "axios";
 
 const PlayerContainer = styled.div`
   width: 100%;
@@ -20,7 +18,7 @@ const PlayerContainer = styled.div`
   margin: 10px 0;
 `;
 
-const Zone = styled.div`
+const Section = styled.div`
   margin: 5px;
   padding: 0;
   height: 50px;
@@ -33,7 +31,6 @@ const Zone = styled.div`
 `;
 
 const PlayerConfiguration = () => {
-  const [prevPlayerNames, setPrevPlayerNames] = useState({});
   const queryClient = useQueryClient();
 
   const inputsQuery = useQuery({
@@ -51,152 +48,75 @@ const PlayerConfiguration = () => {
   const playersMutation = useMutation({
     mutationFn: (data) => updatePlayer(data),
     onSuccess: (data) => {
-      queryClient.setQueryData(["players", data.id], data);
+      queryClient.setQueryData(["players", data.player_id], data);
       queryClient.invalidateQueries(["players", { exact: true }]);
     },
   });
 
-  useEffect(() => {
-    if (playersQuery.data) {
-      const initialNames = playersQuery.data.reduce((acc, player) => {
-        acc[player.id] = player.name;
-        return acc;
-      }, {});
-      setPrevPlayerNames(initialNames);
-    }
-  }, [playersQuery.data]);
-
-  const handleSubmit = (id, name, input, handle, resid) => {
+  // Update players-table
+  const handleSubmit = (playerId, name, input, resourceHandle) => {
     playersMutation.mutate({
-      id: id,
+      playerId: playerId,
       name: name,
-      input: Array.isArray(input) ? input : [input],
-      handle: Array.isArray(handle) ? handle : [handle],
-      resid: Array.isArray(resid) ? resid : [resid],
+      input: input,
+      resourceHandle: resourceHandle,
     });
   };
 
-  const handleSaveName = async (id, newName) => {
-    const player = playersQuery.data.find((player) => player.id === id);
-    const prevName = prevPlayerNames[id];
-
-    const updatedInputs = await Promise.all(
-      player.input.map(async (input, index) => {
-        const newInputName = input.includes(prevName) ? input.replace(prevName, newName) : input;
-
-        const answer = await setInputName(player.handle[index], newInputName);
-        return newInputName;
-      })
-    );
-
-    handleSubmit(id, newName, updatedInputs, player.handle, player.resid);
-
-    setPrevPlayerNames((prevNames) => ({
-      ...prevNames,
-      [id]: newName,
-    }));
+  // Handle update of Player-name
+  const handleSaveName = async (playerId, newName) => {
+    const player = playersQuery.data.find((player) => player.player_id === playerId);
+    console.log("PLAYER: ", playerId);
+    handleSubmit(playerId, newName, player.input, player.resource_handle);
   };
 
-  const updatePlayerInput = async (id, newInput, inputIndex) => {
-    const player = playersQuery.data.find((player) => player.id === id);
+  const updatePlayerInput = async (playerId, newInput) => {
+    const player = playersQuery.data.find((player) => player.player_id === playerId);
 
-    const newInputs = [...player.input];
-    newInputs[inputIndex] = newInput.name;
+    // Change Resource-name inside Pixera
+    const answer = await setInputName(newInput.handle, newInput.name);
 
-    const newHandles = [...player.handle];
-    newHandles[inputIndex] = newInput.handle;
-
-    const newResids = [...player.resid];
-    newResids[inputIndex] = newInput.resid;
-
-    const answer = await setInputName(newHandles[inputIndex], newInputs[inputIndex]);
-
-    handleSubmit(id, player.name, newInputs, newHandles, newResids);
+    // Change name inside players-table
+    handleSubmit(playerId, player.name, newInput.name, newInput.handle);
   };
-
-  if (inputsQuery.isLoading || playersQuery.isLoading) {
-    return <p>loading ...</p>;
-  }
-
-  if (inputsQuery.isError || playersQuery.isError) {
-    return <pre>{JSON.stringify(inputsQuery.error || playersQuery.error)}</pre>;
-  }
 
   return (
     <>
       <h1>Player Configuration</h1>
       <div className="container text-center">
-        {playersQuery.data.map((player, index) => (
-          <div className="row" key={player.id}>
-            <div className="col">
-              <PlayerContainer>
-                <PlayerName name={player.name} onSave={(newName) => handleSaveName(player.id, newName)} />
-                {Object.entries(player.zones).map(([zoneId, ratio]) => (
-                  <Zone key={zoneId} $ratio={ratio.replace(":", "/")}>
-                    {ratio}
-                  </Zone>
-                ))}
-                <div className="d-flex">
-                  {player.input.map((currInput, index) => (
-                    <InputData
-                      key={index}
-                      inputs={inputsQuery.data}
-                      input={currInput}
-                      onUpdateInput={(newInput) => updatePlayerInput(player.id, newInput, index)}
-                    />
+        {playersQuery.isLoading && <div className="spinner-border" role="status"></div>}
+        {playersQuery.isError && <span className="badge text-light text-bg-danger">Players not available</span>}
+        {playersQuery.data &&
+          playersQuery.data.map((player) => (
+            <div className="row" key={player.player_id}>
+              <div className="col">
+                <PlayerContainer>
+                  <PlayerName name={player.name} onSave={(newName) => handleSaveName(player.player_id, newName)} />
+                  {Object.entries(player.sections).map(([section, ratio]) => (
+                    <Section key={section} $ratio={ratio.replace(":", "/")}>
+                      {ratio}
+                    </Section>
                   ))}
-                </div>
-              </PlayerContainer>
+                  <div className="d-flex">
+                    {inputsQuery.isLoading && <div className="spinner-border" role="status"></div>}
+                    {inputsQuery.isError && (
+                      <span className="badge text-light text-bg-danger">Input not available</span>
+                    )}
+                    {inputsQuery.data && (
+                      <InputData
+                        inputs={inputsQuery.data}
+                        input={playersQuery.data.input}
+                        onUpdateInput={(newInput) => updatePlayerInput(player.player_id, newInput)}
+                      />
+                    )}
+                  </div>
+                </PlayerContainer>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
       </div>
     </>
   );
 };
 
 export default PlayerConfiguration;
-
-/*
-const handleSaveName = (id, newName) => {
-    const player = playersQuery.data.find((player) => player.id === id);
-    handleSubmit(id, newName, player.input, player.handle, player.resid);
-  };
-
-
-
-
-
-
-    <>
-      <h1>Player Configuration</h1>
-      <div className="container text-center">
-        {players.map((player, index) => (
-          <div className="row" key={player.id}>
-            <div className="col">
-              <PlayerContainer>
-                <PlayerName name={player.name} onSave={(newName) => handleSaveName(player.id, newName)} />
-                {Object.entries(player.zones).map(([zoneId, ratio]) => (
-                  <Zone key={zoneId} ratio={ratio.replace(":", "/")}>
-                    {ratio}
-                  </Zone>
-                ))}
-                <div className="d-flex">
-                  {player.input.map((input, index) => (
-                    <InputData
-                      key={index}
-                      inputs={inputs}
-                      input={input}
-                      onUpdateInput={(newInput) => updatePlayerInput(player.id, newInput, index)}
-                    />
-                  ))}
-                </div>
-              </PlayerContainer>
-            </div>
-          </div>
-        ))}
-      </div>
-    </>
-
-
-*/

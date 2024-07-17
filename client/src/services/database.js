@@ -1,7 +1,6 @@
 import axios from "axios";
 
 export function updatePlayer(body) {
-  console.log("BODY:: ", body);
   return axios
     .put("http://localhost:5000/players", {
       headers: { "Content-Type": "application/json" },
@@ -14,59 +13,59 @@ export function getPlayers() {
   return axios.get("http://localhost:5000/players").then((res) => res.data);
 }
 
-export function getTimelines() {
-  return axios.get("http://localhost:5000/timelines").then((res) => res.data);
+export function getMatrices() {
+  return axios.get("http://localhost:5000/data/matrices").then((res) => res.data);
 }
 
-export function getLayers() {
-  return axios.get("http://localhost:5000/layers").then((res) => res.data);
+export function getZones() {
+  return axios.get("http://localhost:5000/data/zones").then((res) => res.data);
 }
 
-export function getLayersFromTimeline(timelineHandle) {
-  return axios.get(`http://localhost:5000/layers/${timelineHandle}`).then((res) => res.data);
+export function getZonesFromMatrixId(matrixId) {
+  return axios.get(`http://localhost:5000/data/zones/${matrixId}`).then((res) => res.data);
 }
 
-export function addTimeline(handle, name) {
+export function addMatrix(handle, name) {
   return axios
-    .post("http://localhost:5000/timeline", {
+    .post("http://localhost:5000/data/matrix", {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ handle, name }),
     })
     .then((res) => res.data);
 }
 
-export function addLayer(body) {
+export function addZone(body) {
   return axios
-    .post("http://localhost:5000/layer", {
+    .post("http://localhost:5000/data/zone", {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     })
     .then((res) => res.data);
 }
 
-export function updateTimeline(handle, name) {
+export function updateMatrixName(matrixId, name) {
   return axios
-    .put(`http://localhost:5000/timeline`, {
+    .put(`http://localhost:5000/data/matrix-name`, {
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ handle, name }),
+      body: JSON.stringify({ matrixId, name }),
     })
     .then((res) => res.data);
 }
 
-export function updateLayer(body) {
+export function updateZone(body) {
   return axios
-    .put(`http://localhost:5000/layer`, {
+    .put(`http://localhost:5000/data/update-zone`, {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     })
     .then((res) => res.data);
 }
 
-export function updateHandle(newHandle, oldHandle) {
+export function updateHandle(newTimelineHandle, matrixId) {
   return axios
-    .put(`http://localhost:5000/update-handle`, {
+    .put(`http://localhost:5000/data/update-handle`, {
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ newHandle, oldHandle }),
+      body: JSON.stringify({ newTimelineHandle, matrixId }),
     })
     .then((res) => res.data);
 }

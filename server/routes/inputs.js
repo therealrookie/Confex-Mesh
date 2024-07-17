@@ -1,3 +1,5 @@
+// All Pixera API requests regarding Inputs / Resources
+
 const express = require("express");
 const router = express.Router();
 const { sendTcpData } = require("../config");
