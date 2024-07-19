@@ -36,7 +36,8 @@ const CreateConfiguration = () => {
   };
 
   const drag = (event, player, zone, ratio) => {
-    const dragData = JSON.stringify({ player: player.name, zone, ratio });
+    const dragData = JSON.stringify({ player: player.name, playerId: player.player_id, zone, ratio });
+    console.log("DRAGDATA: ", dragData);
     event.dataTransfer.setData("application/json", dragData);
 
     const shape = event.target;
@@ -82,6 +83,7 @@ const CreateConfiguration = () => {
     event.preventDefault();
     const jsonData = event.dataTransfer.getData("application/json");
     const textData = event.dataTransfer.getData("text/plain");
+    console.log("EVENT: ", textData);
 
     try {
       if (jsonData) {
@@ -139,7 +141,7 @@ const CreateConfiguration = () => {
 
   function getNewShapeData(event, data) {
     const ratioArray = getRatioArray(data.ratio); // i.e. [64, 9]
-
+    console.log("DATA: ", data);
     return {
       id: createRandomId(),
       ratioWidth: ratioArray[0], // i.e. 64
@@ -148,6 +150,7 @@ const CreateConfiguration = () => {
       left: calcLeftPosOfShape(event, ratioArray),
       zone: data.zone,
       player: data.player, // Add the player's name to the shape data
+      playerId: data.playerId,
     };
   }
 
@@ -176,15 +179,17 @@ const CreateConfiguration = () => {
     }
   };
 
-  function newMatrix() {
-    const matrixData = addMatrix(0, name);
+  async function newMatrix() {
+    const matrixData = await addMatrix(0, name);
+    console.log(matrixData);
 
     shapes.map((shape) => {
+      console.log("SHAPE: ", shape);
       addZone({
-        matrixId: matrixData.matrix_id,
-        playerId: 5,
+        matrixId: matrixData.matrix.matrix_id,
+        playerId: shape.playerId,
         layerHandle: 0,
-        posLeft: shape.posLeft,
+        posLeft: shape.left,
         section: shape.zone,
       });
     });

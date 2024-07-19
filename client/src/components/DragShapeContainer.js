@@ -14,6 +14,7 @@ const DragShapeContainer = ({ filteredPlayers, playerRatio, drag, setEdit }) => 
                   ratio === playerRatio && (
                     <ZoneShape
                       key={section}
+                      playerId={player.playerId}
                       $ratioWidth={parseInt(ratio.split(":")[0], 10)}
                       $ratioHeight={parseInt(ratio.split(":")[1], 10)}
                       draggable

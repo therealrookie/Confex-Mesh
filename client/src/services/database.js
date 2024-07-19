@@ -13,7 +13,8 @@ export function getPlayers() {
   return axios.get("http://localhost:5000/players").then((res) => res.data);
 }
 
-export function getMatrices() {
+export async function getMatrices() {
+  console.log("HERE");
   return axios.get("http://localhost:5000/data/matrices").then((res) => res.data);
 }
 

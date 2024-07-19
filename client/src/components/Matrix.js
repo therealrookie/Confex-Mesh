@@ -3,6 +3,7 @@ import styled from "styled-components";
 import Layer from "./Layer";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { getLayers } from "../services/api";
+import { getZonesFromMatrixId } from "../services/database";
 
 const MatrixContainer = styled.div`
   position: relative;
@@ -13,30 +14,32 @@ const MatrixContainer = styled.div`
   background-color: #f0f0f0;
 `;
 
-const Matrix = ({ handle }) => {
-  const layersQuery = useQuery({
-    queryKey: ["layers", handle],
+const Matrix = ({ matrixId }) => {
+  const zonesQuery = useQuery({
+    queryKey: ["zones", matrixId],
     enabled: true,
-    queryFn: () => getLayers(handle),
+    queryFn: () => getZonesFromMatrixId(matrixId),
   });
 
-  if (layersQuery.isLoading) {
+  console.log("ZONES: ", zonesQuery.data);
+
+  if (zonesQuery.isLoading) {
     return <p>loading ...</p>;
   }
 
-  if (layersQuery.isError) {
-    return <pre>{JSON.stringify(layersQuery.error)}</pre>;
+  if (zonesQuery.isError) {
+    return <pre>{JSON.stringify(zonesQuery.error)}</pre>;
   }
 
-  if (!layersQuery.data) {
+  if (!zonesQuery.data) {
     return <p>No layers available</p>;
   }
 
   return (
     <MatrixContainer>
-      {layersQuery.data.map((layer, index) => {
-        return <Layer key={layer.handle} handle={layer.handle} index={index} layersQuery={layersQuery.data} />;
-      })}
+      {zonesQuery.data.map((zone, index) => (
+        <Layer zone={zone} />
+      ))}
     </MatrixContainer>
   );
 };
@@ -44,6 +47,7 @@ const Matrix = ({ handle }) => {
 export default Matrix;
 
 /*
+        return <Layer key={zone.zone_id} handle={zone.layer_handle} index={index} zonesQuery={zonesQuery.data} />;
 
 
 {layers.map((layer, index) => {

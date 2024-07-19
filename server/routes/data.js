@@ -16,6 +16,7 @@ router.get("/matrices", async (req, res) => {
 });
 
 // Get all zones
+/*
 router.get("/zones", async (req, res) => {
   try {
     const zones = await pool.query("SELECT * FROM zones");
@@ -25,11 +26,13 @@ router.get("/zones", async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+*/
 
 // Get all zones from specific timeline by ID
-router.get("/zones/:matrix-id", async (req, res) => {
+router.get("/zones/:matrixid", async (req, res) => {
   try {
-    const matrixId = req.params;
+    const matrixId = req.params.matrixid;
+    console.log("MATRIX ID: ", matrixId);
     const zonesOfMatrix = await pool.query("SELECT * FROM zones WHERE matrix_id = $1", [matrixId]);
     res.json(zonesOfMatrix.rows);
   } catch (err) {
@@ -46,7 +49,7 @@ router.post("/matrix", async (req, res) => {
       handle,
       name,
     ]);
-    res.status(200).json({ message: "Matrix was added!", timeline: newTimeline.rows[0] });
+    res.status(200).json({ message: "Matrix was added!", matrix: newTimeline.rows[0] });
   } catch (err) {
     console.error(err.message);
     res.status(500).json({ error: "Internal Server Error" });
