@@ -1,26 +1,13 @@
 import React, { useState } from "react";
-import { createRoot } from "react-dom/client";
 import "../sass/configuration.css";
-import styled from "styled-components";
-import { newTimeline } from "../services/createTimeline";
 import { useQuery } from "@tanstack/react-query";
-import { addMatrix, getPlayers, addZone } from "../services/database";
+import { addMatrix, getPlayers, addZone } from "../../../services/database";
 import RatioTabs from "./RatioTabs";
-import { getSnapPosition, clientInsideRect } from "../services/matrixConfigFunctions";
-import { json } from "react-router-dom";
-import {
-  Container,
-  PlayerContainer,
-  ZoneContainer,
-  ZoneShape,
-  ZoneText,
-  ComponentContainer,
-  ScreenContainer,
-  DraggableShape,
-} from "../services/StyledComponents";
+import { getSnapPosition, clientInsideRect } from "../../../services/matrixConfigFunctions";
+import { ComponentContainer, ScreenContainer, DraggableShape } from "./StyledComponents";
 import DragShapeContainer from "./DragShapeContainer";
 
-const CreateConfiguration = () => {
+const CreateConfiguration = ({ returnTab }) => {
   const [activeTab, setActiveTab] = useState("144:9");
   const [shapes, setShapes] = useState([]); // State to track shapes
   const [edit, setEdit] = useState("edit");
@@ -182,18 +169,31 @@ const CreateConfiguration = () => {
   async function newMatrix() {
     const matrixData = await addMatrix(0, name);
     console.log(matrixData);
+    const screenContainerRect = getScreenContainerRect();
 
-    shapes.map((shape) => {
-      console.log("SHAPE: ", shape);
-      addZone({
+    shapes.map(async (shape) => {
+      const { leftPercentage, topPercentage } = calculatePercentagePosition(
+        shape.left,
+        shape.top,
+        screenContainerRect.width,
+        screenContainerRect.height
+      );
+      await addZone({
         matrixId: matrixData.matrix.matrix_id,
         playerId: shape.playerId,
         layerHandle: 0,
-        posLeft: shape.left,
+        posLeft: leftPercentage,
         section: shape.zone,
       });
     });
     const zoneData = clearShapes();
+    //returnTab("matrixList");
+  }
+
+  function calculatePercentagePosition(left, top, containerWidth, containerHeight) {
+    const leftPercentage = (left / containerWidth) * 100;
+    const topPercentage = (top / containerHeight) * 100;
+    return { leftPercentage, topPercentage };
   }
 
   const clearShapes = () => {

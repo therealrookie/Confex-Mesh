@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { EditIcon } from "../assets/icons";
+import { EditIcon } from "../../../assets/icons";
 import styled from "styled-components";
 
 const EditIconStyled = styled(EditIcon)`

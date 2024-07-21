@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import styled from "styled-components";
 import Layer from "./Layer";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
-import { getLayers } from "../services/api";
-import { getZonesFromMatrixId } from "../services/database";
+import { getZonesFromMatrixId } from "../../../services/database";
 
 const MatrixContainer = styled.div`
   position: relative;

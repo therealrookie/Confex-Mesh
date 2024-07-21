@@ -40,6 +40,55 @@ CREATE TABLE zones (
     section VARCHAR(255)
 );
 
+CREATE TABLE helper (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255),
+    data VARCHAR(255)
+)
+
+INSERT INTO helper (name, data)
+VALUES
+(
+    'IP Pixera four (main)',
+    '10.10.10.109'
+),
+(
+    'PORT Pixera four (main)',
+    '1400'
+),
+(
+    'IP Pixera four (backup)',
+    '10.10.10.110'
+),
+(
+    'PORT Pixera four (backup)',
+    '1400'
+),
+(
+    'IP Novastar (main)',
+    '10.10.10.106'
+),
+(
+    'PORT Novastar (main)',
+    '8001'
+),
+(
+    'IP Novastar (backup hot)',
+    '10.10.10.107'
+),
+(
+    'PORT Novastar (backup hot)',
+    '8001'
+),
+(
+    'IP Novastar (backup cold)',
+    '10.10.10.108'
+),
+(
+    'PORT Novastar (backup cold)',
+    '8001'
+);
+
 DROP TABLE todo;
 
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { getCabinets, handleSliderChange } from "../services/novastarApi";
+import { getCabinets, handleSliderChange } from "../../../services/novastarApi";
 const LedStatus = () => {
   const [brightness, setBrightness] = useState(50); // Setting an initial value for the slider
   const [cabinets, setCabinets] = useState();

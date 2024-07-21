@@ -4,29 +4,26 @@ const express = require("express");
 const router = express.Router();
 const pool = require("../db");
 
-// Get all matrices
-router.get("/matrices", async (req, res) => {
+router.get("/hardware-data", async (req, res) => {
   try {
-    const matrices = await pool.query("SELECT * FROM matrices");
-    res.json(matrices.rows);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ error: "Internal Server Error" });
+    const data = await pool.query("SELECT * FROM helper ORDER BY id ASC");
+    res.json(data.rows);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: "Internal Server error" });
   }
 });
 
-// Get all zones
-/*
-router.get("/zones", async (req, res) => {
+// Get all matrices
+router.get("/matrices", async (req, res) => {
   try {
-    const zones = await pool.query("SELECT * FROM zones");
-    res.json(zones.rows);
-  } catch (err) {
-    console.error(err.message);
+    const matrices = await pool.query("SELECT * FROM matrices ORDER BY matrix_id ASC");
+    res.json(matrices.rows);
+  } catch (error) {
+    console.error(error.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
-*/
 
 // Get all zones from specific timeline by ID
 router.get("/zones/:matrixid", async (req, res) => {
@@ -35,8 +32,20 @@ router.get("/zones/:matrixid", async (req, res) => {
     console.log("MATRIX ID: ", matrixId);
     const zonesOfMatrix = await pool.query("SELECT * FROM zones WHERE matrix_id = $1", [matrixId]);
     res.json(zonesOfMatrix.rows);
-  } catch (err) {
-    console.error(err.message);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+// Get zone from zone_id
+router.get("/zone/:zoneid", async (req, res) => {
+  try {
+    const zoneId = req.params.zoneid;
+    const zone = await pool.query("SELECT * FROM zones WHERE zone_id = $1", [zoneId]);
+    res.json(zone.rows);
+  } catch (error) {
+    console.error(error.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
@@ -50,8 +59,8 @@ router.post("/matrix", async (req, res) => {
       name,
     ]);
     res.status(200).json({ message: "Matrix was added!", matrix: newTimeline.rows[0] });
-  } catch (err) {
-    console.error(err.message);
+  } catch (error) {
+    console.error(error.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
@@ -65,8 +74,8 @@ router.post("/zone", async (req, res) => {
       [matrixId, playerId, layerHandle, posLeft, section]
     );
     res.status(200).json({ message: "Zone was added!", zone: newZone.rows[0] });
-  } catch (err) {
-    console.error(err.message);
+  } catch (error) {
+    console.error(error.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
@@ -77,8 +86,8 @@ router.put("/matrix-name", async (req, res) => {
     const { matrixId, name } = JSON.parse(req.body.body);
     const matrix = await pool.query("UPDATE matrices SET name = $1 WHERE matrix_id = $2 RETURNING *", [name, matrixId]);
     res.status(200).json({ message: "Matrix was updated!", matrix: matrix.rows[0] });
-  } catch (err) {
-    console.error(err.message);
+  } catch (error) {
+    console.error(error.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
@@ -92,8 +101,8 @@ router.put("/update-zone", async (req, res) => {
       [playerId, layerHandle, section, zoneId]
     );
     res.status(200).json({ message: "Layer was updated!", layer: layer.rows[0] });
-  } catch (err) {
-    console.error(err.message);
+  } catch (error) {
+    console.error(error.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
@@ -110,8 +119,21 @@ router.put("/update-handle", async (req, res) => {
       message: "Handle was updated!",
       matrix: matrix.rows[0],
     });
-  } catch (err) {
-    console.error(err.message);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+// Delete matrix and zones
+router.delete("/delete-matrix/:matrixId", async (req, res) => {
+  try {
+    const matrixId = req.params.matrixId;
+    const delMatrix = await pool.query("DELETE FROM matrices WHERE matrix_id = $1", [matrixId]);
+    const delZone = await pool.query("DELETE FROM zones WHERE matrix_id = $1", [matrixId]);
+    res.status(200).json({ message: "Matrix was deleted!", matrix: delMatrix, zones: delZone });
+  } catch (error) {
+    console.error(error.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });

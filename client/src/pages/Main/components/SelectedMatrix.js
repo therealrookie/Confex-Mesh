@@ -2,7 +2,7 @@
 // Is shown on the Main page
 
 import React from "react";
-import Matrix from "./Matrix";
+//import Matrix from "./Matrix";
 
 const DefaultMatrix = {
   id: "4",

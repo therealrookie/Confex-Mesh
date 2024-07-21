@@ -3,13 +3,13 @@ import "./App.css";
 import { Route, Routes } from "react-router-dom";
 
 // Components
-import Configuration from "./pages/Configuration";
+import Configuration from "./pages/Configuration/Configuration";
 import Navbar from "./components/Navbar";
-import Main from "./pages/Main";
-import Control from "./pages/Control";
-import Admin from "./pages/Admin";
-import Account from "./pages/Account";
-import Login from "./pages/Login";
+import Main from "./pages/Main/Main";
+import Control from "./pages/Control/Control";
+import Admin from "./pages/Admin/Admin";
+import Account from "./pages/Account/Account";
+import Login from "./pages/Login/Login";
 import Footer from "./components/Footer";
 
 function App() {

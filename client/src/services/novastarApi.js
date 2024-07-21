@@ -1,13 +1,15 @@
 // novastarApi.js
 import axios from "axios";
 
+const URL = "http://10.10.10.102";
+const PORT = 5000;
+
 export const getCabinets = (setCabinets, setBrightness) => {
   axios
-    .get("http://localhost:5000/novastar/cabinets", {})
+    .get(`${URL}:${PORT}/novastar/cabinets`, {})
     .then((response) => {
       setCabinets(response.data.cabinetIds);
       setBrightness(response.data.brightness[0] * 100);
-      console.log("RESPONSE", response);
     })
     .catch((error) => {
       console.error("Error updating brightness:", error);
@@ -20,7 +22,7 @@ export const handleSliderChange = (event, cabinets, setBrightness) => {
 
   // API request to change the brightness
   axios
-    .put("http://localhost:5000/novastar/brightness", {
+    .put(`${URL}:${PORT}/novastar/brightness`, {
       cabinets: cabinets,
       brightness: newBrightness,
     })

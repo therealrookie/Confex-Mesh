@@ -1,5 +1,5 @@
 import React from "react";
-import { PlayIcon, StopIcon, TrashIcon, EditIcon } from "../assets/icons";
+import { PlayIcon, StopIcon } from "../../../assets/icons";
 
 const EditTransportMode = ({ timelineHandle }) => {
   return (

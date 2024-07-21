@@ -1,8 +1,8 @@
 import React, { Fragment } from "react";
-import CreateUser from "../components/CreateUser";
-import ListUsers from "../components/ListUsers";
+import CreateUser from "./components/CreateUser";
+import ListUsers from "./components/ListUsers";
 
-const Users = () => {
+const Admin = () => {
   return (
     <Fragment>
       <div className="container">
@@ -13,4 +13,4 @@ const Users = () => {
   );
 };
 
-export default Users;
+export default Admin;

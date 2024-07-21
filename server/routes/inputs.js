@@ -7,24 +7,35 @@ const { sendTcpData } = require("../config");
 router.put("/", async (req, res) => {
   try {
     const { handle, name } = req.body;
-    const message = JSON.stringify(
-      {
+    const message =
+      JSON.stringify({
         jsonrpc: "2.0",
         id: 337,
         method: "Pixera.Resources.Resource.setName",
         params: { handle: handle, name: name },
-      } + "0xPX"
-    );
+      }) + "0xPX";
     const answer = sendTcpData(message);
     res.send(answer);
   } catch (error) {
     res.status(500).send({ error: error.message });
   }
 });
+/*
+router.get("/", async (req, res) => {
+  try {
+    const resourceFolderHandle = await resourceFolder("Media");
+
+    res.status(201).json(resourceFolderHandle);
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+});
+*/
 
 router.get("/", async (req, res) => {
   try {
-    const resourceFolderHandle = parseInt(await resourceFolder("Media"));
+    const resourceFolderHandle = await resourceFolder("Media/Live Inputs");
+
     const resourceHandleArray = await resourceHandles(resourceFolderHandle);
     const resources = await Promise.all(
       resourceHandleArray.map(async (resourceHandle) => {
@@ -41,11 +52,37 @@ router.get("/", async (req, res) => {
       })
     );
     //let inputs = resources.filter((item) => item.mode == "LiveInput");
-    res.send(resources);
+    res.status(201).json(resources);
   } catch (error) {
     res.status(500).send({ error: error.message });
   }
 });
+
+async function resourceFolder(path) {
+  const message =
+    JSON.stringify({
+      jsonrpc: "2.0",
+      id: 290,
+      method: "Pixera.Resources.getResourceFolderWithNamePath",
+      params: { namePath: path },
+    }) + "0xPX";
+  const data = JSON.parse(await sendTcpData(message));
+  if (data.error) throw new Error(data.error.message);
+  return data.result;
+}
+
+async function resourceHandles(handle) {
+  const message =
+    JSON.stringify({
+      jsonrpc: "2.0",
+      id: 298,
+      method: "Pixera.Resources.ResourceFolder.getResources",
+      params: { handle: handle },
+    }) + "0xPX";
+  const data = JSON.parse(await sendTcpData(message));
+  if (data.error) throw new Error(data.error.message);
+  return data.result;
+}
 
 router.get("/effects", async (req, res) => {
   try {
@@ -139,32 +176,6 @@ async function getResourceName(handle) {
       id: 336,
       method: "Pixera.Resources.Resource.getName",
       params: { handle: handle },
-    }) + "0xPX";
-  const data = JSON.parse(await sendTcpData(message));
-  if (data.error) throw new Error(data.error.message);
-  return data.result;
-}
-
-async function resourceHandles(handle) {
-  const message =
-    JSON.stringify({
-      jsonrpc: "2.0",
-      id: 298,
-      method: "Pixera.Resources.ResourceFolder.getResources",
-      params: { handle: handle },
-    }) + "0xPX";
-  const data = JSON.parse(await sendTcpData(message));
-  if (data.error) throw new Error(data.error.message);
-  return data.result;
-}
-
-async function resourceFolder(path) {
-  const message =
-    JSON.stringify({
-      jsonrpc: "2.0",
-      id: 290,
-      method: "Pixera.Resources.getResourceFolderWithNamePath",
-      params: { namePath: path },
     }) + "0xPX";
   const data = JSON.parse(await sendTcpData(message));
   if (data.error) throw new Error(data.error.message);

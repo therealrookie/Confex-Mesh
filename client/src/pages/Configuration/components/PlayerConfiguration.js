@@ -3,8 +3,8 @@ import styled from "styled-components";
 import InputData from "./InputData";
 import PlayerName from "./PlayerName";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getInputs, setInputName } from "../services/api";
-import { getPlayers, updatePlayer } from "../services/database";
+import { getInputs, setInputName } from "../../../services/api";
+import { getPlayers, updatePlayer } from "../../../services/database";
 
 const PlayerContainer = styled.div`
   width: 100%;

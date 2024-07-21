@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { EditIcon, SdiIcon, HdmiIcon } from "../assets/icons";
+import { EditIcon, SdiIcon, HdmiIcon } from "../../../assets/icons";
 import styled from "styled-components";
 
 const Container = styled.div`

@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
-import { EditIcon } from "../assets/icons";
+import { EditIcon } from "../../../assets/icons";
 import styled from "styled-components";
+import { updateMatrixName } from "../../../services/database";
+import { setTimelineName } from "../../../services/api";
 
 const EditIconStyled = styled(EditIcon)`
   visibility: hidden;
@@ -31,7 +33,7 @@ const StyledInput = styled.input`
   pointer-events: ${(props) => (props.$isEditing ? "auto" : "none")};
 `;
 
-const TimelineName = ({ handle, name, onSave }) => {
+const MatrixName = ({ matrixId, timelineHandle, name }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(name);
   const inputRef = useRef(null);
@@ -51,7 +53,8 @@ const TimelineName = ({ handle, name, onSave }) => {
   };
 
   const handleSave = () => {
-    onSave(handle, editName);
+    updateMatrixName(matrixId, editName);
+    setTimelineName(timelineHandle, editName);
     setIsEditing(false);
   };
 
@@ -80,4 +83,4 @@ const TimelineName = ({ handle, name, onSave }) => {
   );
 };
 
-export default TimelineName;
+export default MatrixName;

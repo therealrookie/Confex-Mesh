@@ -1,5 +1,5 @@
 import React from "react";
-import { Container, PlayerContainer, ZoneContainer, ZoneShape, ZoneText } from "../services/StyledComponents";
+import { Container, PlayerContainer, ZoneContainer, ZoneShape, ZoneText } from "./StyledComponents";
 
 const DragShapeContainer = ({ filteredPlayers, playerRatio, drag, setEdit }) => {
   return (

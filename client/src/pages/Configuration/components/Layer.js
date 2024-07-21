@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { getLayerData, getLayers } from "../services/api";
-import { getPlayers } from "../services/database";
-import { calcDimensions, calcPositions, checkCropping } from "../services/calculations";
-import { useEditLayer } from "../context/EditLayerContext";
+import { getLayerData, getLayers } from "../../../services/api";
+import { getPlayers } from "../../../services/database";
+import { calcDimensions, calcPositions, checkCropping } from "../../../services/calculations";
+import { useEditZone } from "../context/EditZoneContext";
 
 const Shape = styled.div`
   position: absolute;
@@ -19,9 +19,12 @@ const Shape = styled.div`
 `;
 
 const Layer = ({ zone }) => {
+  // zone: {zone_id, matrix_id, player_id, layer_handle, pos_left, section}
   const [width, setWidth] = useState();
   const [player, setPlayer] = useState();
   const [ratio, setRatio] = useState();
+
+  const { editZone, setEditZone } = useEditZone();
 
   const { data: playersData } = useQuery({
     queryKey: ["players"],
@@ -70,10 +73,17 @@ const Layer = ({ zone }) => {
       $width={width}
       $index={zone.zone_id}
       onClick={() => {
-        //setEditLayer(editLayer.handle === handle ? { handle: null, props: null } : { handle: handle, props: props });
+        setEditZone({
+          zoneId: zone.zone_id,
+          matrixId: zone.matrix_id,
+          playerId: zone.player_id,
+          layerHandle: zone.layer_handle,
+          section: zone.section,
+          ratio: ratio,
+        });
       }}
     >
-      {zone.pos_left} {player ? player.name : "Loading..."}
+      {ratio} {player ? player.name : "Loading..."}
     </Shape>
   );
 };

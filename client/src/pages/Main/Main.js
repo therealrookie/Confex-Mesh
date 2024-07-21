@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { Container, Row, Col, Form, Button, Badge } from "react-bootstrap";
-import PreviewWinow from "../components/PreviewWinow";
-import NexshopPlayerStatus from "../components/NexshopPlayerStatus";
-import SelectedMatrix from "../components/SelectedMatrix";
-import PixeraStatus from "../components/PixeraStatus";
-import NovastarStatus from "../components/NovastarStatus";
-import LedStatus from "../components/LedStatus";
+import PreviewWinow from "./components/PreviewWinow";
+import NexshopPlayerStatus from "./components/NexshopPlayerStatus";
+import SelectedMatrix from "./components/SelectedMatrix";
+import PixeraStatus from "./components/PixeraStatus";
+import NovastarStatus from "./components/NovastarStatus";
+import LedStatus from "./components/LedStatus";
 
 const Main = () => {
   const [brightness, setBrightness] = useState(50); // Default brightness

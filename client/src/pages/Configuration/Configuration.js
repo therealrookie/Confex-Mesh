@@ -1,9 +1,10 @@
 import React, { useState, Fragment } from "react";
-import CreateConfiguration from "../components/CreateConfiguration";
-import MatrixList from "../components/MatrixList";
+import CreateConfiguration from "./components/CreateConfiguration";
+import MatrixList from "./components/MatrixList";
 import styled from "styled-components";
-import PlayerConfiguration from "../components/PlayerConfiguration";
-import { EditMatrixProvider } from "../context/EditMatrixContext";
+import PlayerConfiguration from "./components/PlayerConfiguration";
+import { EditMatrixProvider } from "./context/EditMatrixContext";
+import { EditZoneProvider } from "./context/EditZoneContext";
 
 const Row = styled.div`
   width: 100%;
@@ -48,12 +49,14 @@ const Configuration = () => {
             <div className="tab-content">
               {activeTab === "matrixList" && (
                 <div className="tab-pane active">
-                  <MatrixList />
+                  <EditZoneProvider>
+                    <MatrixList />
+                  </EditZoneProvider>
                 </div>
               )}
               {activeTab === "createConfiguration" && (
                 <div className="tab-pane active">
-                  <CreateConfiguration />
+                  <CreateConfiguration returnTab={setActiveTab} />
                 </div>
               )}
               {activeTab === "playerConfiguration" && (
