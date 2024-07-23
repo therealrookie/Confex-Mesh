@@ -58,9 +58,6 @@ const MatrixList = () => {
     onError: (error) => {
       console.error("Error fetching matrices:", error);
     },
-    onSuccess: (data) => {
-      console.log("Fetched matrices data:", data);
-    },
   });
 
   /*

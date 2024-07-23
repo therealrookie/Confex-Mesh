@@ -4,8 +4,22 @@ import { useQuery } from "@tanstack/react-query";
 import { addMatrix, getPlayers, addZone } from "../../../services/database";
 import RatioTabs from "./RatioTabs";
 import { getSnapPosition, clientInsideRect } from "../../../services/matrixConfigFunctions";
-import { ComponentContainer, ScreenContainer, DraggableShape } from "./StyledComponents";
+import {
+  Container,
+  ComponentContainer,
+  ScreenContainer,
+  DraggableShape,
+  ZoneInfo,
+  ButtonContainer,
+  CenterText,
+  Buttons,
+  StyledButton,
+  CancelButton,
+  SaveButton,
+  ButtonPlaceholder,
+} from "./StyledComponents";
 import DragShapeContainer from "./DragShapeContainer";
+import { createNewLayer, createNewTimeline } from "../services/createTimeline";
 
 const CreateConfiguration = ({ returnTab }) => {
   const [activeTab, setActiveTab] = useState("144:9");
@@ -24,7 +38,6 @@ const CreateConfiguration = ({ returnTab }) => {
 
   const drag = (event, player, zone, ratio) => {
     const dragData = JSON.stringify({ player: player.name, playerId: player.player_id, zone, ratio });
-    console.log("DRAGDATA: ", dragData);
     event.dataTransfer.setData("application/json", dragData);
 
     const shape = event.target;
@@ -70,7 +83,6 @@ const CreateConfiguration = ({ returnTab }) => {
     event.preventDefault();
     const jsonData = event.dataTransfer.getData("application/json");
     const textData = event.dataTransfer.getData("text/plain");
-    console.log("EVENT: ", textData);
 
     try {
       if (jsonData) {
@@ -128,7 +140,6 @@ const CreateConfiguration = ({ returnTab }) => {
 
   function getNewShapeData(event, data) {
     const ratioArray = getRatioArray(data.ratio); // i.e. [64, 9]
-    console.log("DATA: ", data);
     return {
       id: createRandomId(),
       ratioWidth: ratioArray[0], // i.e. 64
@@ -167,8 +178,8 @@ const CreateConfiguration = ({ returnTab }) => {
   };
 
   async function newMatrix() {
-    const matrixData = await addMatrix(0, name);
-    console.log(matrixData);
+    const timelineHandle = await createNewTimeline(name);
+    const matrixData = await addMatrix(timelineHandle, name);
     const screenContainerRect = getScreenContainerRect();
 
     shapes.map(async (shape) => {
@@ -178,10 +189,12 @@ const CreateConfiguration = ({ returnTab }) => {
         screenContainerRect.width,
         screenContainerRect.height
       );
+      const player = playersQuery.data.find((player) => player.player_id === shape.playerId);
+      const layerHandle = createNewLayer(timelineHandle, leftPercentage, player, shape.zone);
       await addZone({
         matrixId: matrixData.matrix.matrix_id,
         playerId: shape.playerId,
-        layerHandle: 0,
+        layerHandle: layerHandle,
         posLeft: leftPercentage,
         section: shape.zone,
       });
@@ -214,9 +227,29 @@ const CreateConfiguration = ({ returnTab }) => {
   };
 
   return (
-    <div>
-      <h1>Matrix Configuration</h1>
-      <p>Drag and drop zones on the Matrix.</p>
+    <Container>
+      <div className="w-100">
+        <ButtonContainer>
+          <ButtonPlaceholder></ButtonPlaceholder>
+          <CenterText>Drag and drop zones on the Matrix.</CenterText>
+          <Buttons>
+            <CancelButton
+              onClick={() => {
+                setEdit("cancel");
+              }}
+            >
+              Cancel
+            </CancelButton>
+            <SaveButton
+              onClick={() => {
+                setEdit("save");
+              }}
+            >
+              Save
+            </SaveButton>
+          </Buttons>
+        </ButtonContainer>
+      </div>{" "}
       <ScreenContainer id="screenContainer" onDrop={drop} onDragOver={allowDrop}>
         {shapes.map((shape) => (
           <DraggableShape
@@ -229,32 +262,19 @@ const CreateConfiguration = ({ returnTab }) => {
             onDragStart={dragInsideContainer}
             onDragEnd={(event) => handleDragEnd(event, shape.id)}
           >
-            Zone {shape.zone}: {shape.ratioWidth}:{shape.ratioHeight}
-            <div>{shape.player}</div>
+            <ZoneInfo>
+              <span>Zone {shape.zone}</span>
+              <span>{shape.player}</span>
+            </ZoneInfo>
           </DraggableShape>
         ))}
       </ScreenContainer>
       {edit === "edit" && (
-        <ComponentContainer>
+        <>
           <RatioTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-          {matchingPlayers(activeTab)}
-          <button
-            className="btn btn-danger"
-            onClick={() => {
-              setEdit("cancel");
-            }}
-          >
-            Cancel
-          </button>
-          <button
-            className="btn btn-success"
-            onClick={() => {
-              setEdit("save");
-            }}
-          >
-            Save
-          </button>
-        </ComponentContainer>
+
+          <ComponentContainer>{matchingPlayers(activeTab)}</ComponentContainer>
+        </>
       )}
       {edit === "cancel" && (
         <div>
@@ -302,7 +322,7 @@ const CreateConfiguration = ({ returnTab }) => {
           </button>
         </div>
       )}
-    </div>
+    </Container>
   );
 };
 

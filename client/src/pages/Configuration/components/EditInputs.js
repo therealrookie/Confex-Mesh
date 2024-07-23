@@ -87,9 +87,6 @@ const EditInputs = ({ matrixId }) => {
   const matchingPlayers = playersQuery.data.filter((player) => {
     const sectionValues = Object.values(player.sections);
     const matchFound = sectionValues.includes(editZone.ratio);
-    console.log("player.sections: ", player.sections);
-    console.log("ratio: ", editZone.ratio);
-    console.log("matchFound: ", matchFound);
     return matchFound;
   });
 

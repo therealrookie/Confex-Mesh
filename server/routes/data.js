@@ -53,9 +53,10 @@ router.get("/zone/:zoneid", async (req, res) => {
 // Add new matrix to Matrix-table
 router.post("/matrix", async (req, res) => {
   try {
-    const { handle, name } = JSON.parse(req.body.body);
+    const { timelineHandle, name } = JSON.parse(req.body.body);
+    console.log("DATA: ", timelineHandle, name);
     const newTimeline = await pool.query("INSERT INTO matrices (timeline_handle, name) VALUES($1, $2) RETURNING *", [
-      handle,
+      timelineHandle,
       name,
     ]);
     res.status(200).json({ message: "Matrix was added!", matrix: newTimeline.rows[0] });

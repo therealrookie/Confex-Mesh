@@ -2,33 +2,51 @@ import React from "react";
 import styled from "styled-components";
 import InputData from "./InputData";
 import PlayerName from "./PlayerName";
+import SectionsContainer from "./SectionsContainer";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getInputs, setInputName } from "../../../services/api";
 import { getPlayers, updatePlayer } from "../../../services/database";
 
-const PlayerContainer = styled.div`
+const GridContainer = styled.div`
   width: 100%;
-  height: 95%;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* Define 4 columns */
+  gap: 10px; /* Gap between grid items */
+`;
+
+const PlayerContainer = styled.div`
   background-color: #f0f0f0;
   border-radius: 10px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  margin: 10px 0;
+  margin: 0px 0;
+  grid-column: span ${(props) => props.span};
 `;
 
-const Section = styled.div`
-  margin: 5px;
-  padding: 0;
-  height: 50px;
-  aspect-ratio: ${(props) => props.$ratio};
-  background-color: #fff;
-  border-radius: 2px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
+const getSizeFromRatio = (ratio) => {
+  switch (ratio) {
+    case "144:9":
+      return 4; // Full width (spans all 4 columns)
+    case "64:9":
+    case "32:9":
+      return 2; // Half width (spans 2 columns)
+    case "16:9":
+      return 1; // Quarter width (spans 1 column)
+    default:
+      return 1; // Default to quarter width
+  }
+};
+
+const getLargestRatio = (sections) => {
+  const ratios = Object.values(sections);
+  if (ratios.includes("144:9")) return "144:9";
+  if (ratios.includes("64:9")) return "64:9";
+  if (ratios.includes("32:9")) return "32:9";
+  if (ratios.includes("16:9")) return "16:9";
+  return "16:9";
+};
 
 const PlayerConfiguration = () => {
   const queryClient = useQueryClient();
@@ -66,7 +84,6 @@ const PlayerConfiguration = () => {
   // Handle update of Player-name
   const handleSaveName = async (playerId, newName) => {
     const player = playersQuery.data.find((player) => player.player_id === playerId);
-    console.log("PLAYER: ", playerId);
     handleSubmit(playerId, newName, player.input, player.resource_handle);
   };
 
@@ -83,38 +100,33 @@ const PlayerConfiguration = () => {
   return (
     <>
       <h1>Player Configuration</h1>
-      <div className="container text-center">
+      <GridContainer className="container text-center">
         {playersQuery.isLoading && <div className="spinner-border" role="status"></div>}
         {playersQuery.isError && <span className="badge text-light text-bg-danger">Players not available</span>}
         {playersQuery.data &&
-          playersQuery.data.map((player) => (
-            <div className="row" key={player.player_id}>
-              <div className="col">
-                <PlayerContainer>
-                  <PlayerName name={player.name} onSave={(newName) => handleSaveName(player.player_id, newName)} />
-                  {Object.entries(player.sections).map(([section, ratio]) => (
-                    <Section key={section} $ratio={ratio.replace(":", "/")}>
-                      {ratio}
-                    </Section>
-                  ))}
-                  <div className="d-flex">
-                    {inputsQuery.isLoading && <div className="spinner-border" role="status"></div>}
-                    {inputsQuery.isError && (
-                      <span className="badge text-light text-bg-danger">Input not available</span>
-                    )}
-                    {inputsQuery.data && (
-                      <InputData
-                        inputs={inputsQuery.data}
-                        input={playersQuery.data.input}
-                        onUpdateInput={(newInput) => updatePlayerInput(player.player_id, newInput)}
-                      />
-                    )}
-                  </div>
-                </PlayerContainer>
-              </div>
-            </div>
-          ))}
-      </div>
+          playersQuery.data.map((player) => {
+            const largestRatio = getLargestRatio(player.sections);
+            const span = getSizeFromRatio(largestRatio);
+
+            return (
+              <PlayerContainer key={player.player_id} span={span}>
+                <PlayerName name={player.name} onSave={(newName) => handleSaveName(player.player_id, newName)} />
+                <SectionsContainer sections={player.sections} />
+                <div className="d-flex">
+                  {inputsQuery.isLoading && <div className="spinner-border" role="status"></div>}
+                  {inputsQuery.isError && <span className="badge text-light text-bg-danger">Input not available</span>}
+                  {inputsQuery.data && (
+                    <InputData
+                      inputs={inputsQuery.data}
+                      player={player}
+                      onUpdateInput={(newInput) => updatePlayerInput(player.player_id, newInput)}
+                    />
+                  )}
+                </div>
+              </PlayerContainer>
+            );
+          })}
+      </GridContainer>
     </>
   );
 };

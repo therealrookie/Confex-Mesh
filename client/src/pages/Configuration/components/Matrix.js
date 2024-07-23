@@ -20,8 +20,6 @@ const Matrix = ({ matrixId }) => {
     queryFn: () => getZonesFromMatrixId(matrixId),
   });
 
-  console.log("ZONES: ", zonesQuery.data);
-
   if (zonesQuery.isLoading) {
     return <p>loading ...</p>;
   }
@@ -37,7 +35,7 @@ const Matrix = ({ matrixId }) => {
   return (
     <MatrixContainer>
       {zonesQuery.data.map((zone, index) => (
-        <Layer zone={zone} />
+        <Layer key={index} zone={zone} />
       ))}
     </MatrixContainer>
   );

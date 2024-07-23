@@ -32,11 +32,11 @@ export function getZonesFromMatrixId(matrixId) {
   return axios.get(`${URL}:${PORT}/data/zones/${matrixId}`).then((res) => res.data);
 }
 
-export function addMatrix(handle, name) {
+export function addMatrix(timelineHandle, name) {
   return axios
     .post(`${URL}:${PORT}/data/matrix`, {
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ handle, name }),
+      body: JSON.stringify({ timelineHandle, name }),
     })
     .then((res) => res.data);
 }

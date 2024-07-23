@@ -48,7 +48,6 @@ const Layer = ({ zone }) => {
   }, [player, zone.section]);
 
   useEffect(() => {
-    console.log("Ratio: ", ratio);
     if (ratio) {
       const calcWidth = () => {
         switch (ratio) {

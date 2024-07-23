@@ -24,9 +24,14 @@ function App() {
         <Route path="/account" element={<Account />} />
         <Route path="/logout" element={<Login />} />
       </Routes>
-      <Footer />
     </Fragment>
   );
 }
 
 export default App;
+
+/*
+      <Footer />
+
+
+*/

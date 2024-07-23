@@ -51,8 +51,12 @@ const InputOption = styled.option`
   border: none;
 `;
 
-const InputData = ({ inputs, input, onUpdateInput }) => {
-  const initInput = inputs.find((inputVal) => inputVal.name === input) || { name: "n/a", fps: 0, resolution: "n/a" };
+const InputData = ({ inputs, player, onUpdateInput }) => {
+  const initInput = inputs.find((inputVal) => inputVal.name === player.input) || {
+    name: "n/a",
+    fps: 0,
+    resolution: "n/a",
+  };
   const [selectedInput, setSelectedInput] = useState(initInput);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
@@ -72,7 +76,6 @@ const InputData = ({ inputs, input, onUpdateInput }) => {
   };
 
   const { name, fps, resolution } = selectedInput;
-  const connected = resolution !== "0x0";
   const running = fps > 0;
 
   return (
@@ -80,11 +83,11 @@ const InputData = ({ inputs, input, onUpdateInput }) => {
       <div className="row">
         <div className="d-flex flex-column">
           <Badge
-            className={`badge text-bg-${connected ? "success" : "danger"} text-light `}
+            className={`badge text-bg-${running ? "success" : "danger"} text-light `}
             onClick={toggleDropdown}
             aria-expanded={dropdownOpen}
           >
-            {name.includes("HDMI") && <HdmiIcon style={{ width: "30px", height: "25px", margin: "0" }} />}
+            {name.includes("HDMI_") && <HdmiIcon style={{ width: "30px", height: "25px", margin: "0" }} />}
             {name.includes("SDI") && <SdiIcon style={{ width: "30px", height: "25px", margin: "0", fill: "#fff" }} />}
             <Dropdown onChange={handleSelect} value={selectedInput.name}>
               {inputs.map((input, index) => (
@@ -103,7 +106,7 @@ const InputData = ({ inputs, input, onUpdateInput }) => {
         </div>
         <div className="col">
           <div>Resolution:</div>
-          <div>{resolution}</div>
+          <div>{player.resolution}</div>
         </div>
       </div>
     </Container>
