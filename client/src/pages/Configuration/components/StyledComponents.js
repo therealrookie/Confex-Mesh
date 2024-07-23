@@ -15,7 +15,7 @@ export const Players = styled.div`
 `;
 
 export const PlayerContainer = styled.div`
-  padding: 10px;
+  padding: 0px;
   border: 1px solid #ccc;
   border-radius: 8px;
   background-color: #f9f9f9;
@@ -96,7 +96,7 @@ export const ZoneInfo = styled.div`
 
 export const ButtonContainer = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   width: 100%;
   margin-top: 20px;

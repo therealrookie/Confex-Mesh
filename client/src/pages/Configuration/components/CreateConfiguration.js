@@ -229,26 +229,36 @@ const CreateConfiguration = ({ returnTab }) => {
   return (
     <Container>
       <div className="w-100">
-        <ButtonContainer>
-          <ButtonPlaceholder></ButtonPlaceholder>
-          <CenterText>Drag and drop zones on the Matrix.</CenterText>
-          <Buttons>
-            <CancelButton
-              onClick={() => {
-                setEdit("cancel");
-              }}
-            >
-              Cancel
-            </CancelButton>
-            <SaveButton
-              onClick={() => {
-                setEdit("save");
-              }}
-            >
-              Save
-            </SaveButton>
-          </Buttons>
-        </ButtonContainer>
+        {edit === "edit" ? (
+          <ButtonContainer>
+            <ButtonPlaceholder></ButtonPlaceholder>
+            <CenterText>Drag and drop zones on the Matrix.</CenterText>
+            <Buttons>
+              <CancelButton
+                onClick={() => {
+                  setEdit("cancel");
+                }}
+              >
+                Cancel
+              </CancelButton>
+              <SaveButton
+                onClick={() => {
+                  setEdit("save");
+                }}
+              >
+                Save
+              </SaveButton>
+            </Buttons>
+          </ButtonContainer>
+        ) : edit === "cancel" ? (
+          <ButtonContainer>
+            <h4>Discard the current Matrix</h4>
+          </ButtonContainer>
+        ) : (
+          <ButtonContainer>
+            <h4>Save the current Matrix</h4>
+          </ButtonContainer>
+        )}
       </div>{" "}
       <ScreenContainer id="screenContainer" onDrop={drop} onDragOver={allowDrop}>
         {shapes.map((shape) => (
@@ -277,31 +287,57 @@ const CreateConfiguration = ({ returnTab }) => {
         </>
       )}
       {edit === "cancel" && (
-        <div>
-          <h4>Discard the current Matrix</h4>
-          <p>Do you really want to delete the Matrix</p>
-          <button
-            className="btn btn-success"
-            onClick={() => {
-              setEdit("edit");
-            }}
-          >
-            No
-          </button>
-          <button
-            className="btn btn-danger"
-            onClick={() => {
-              clearShapes();
-            }}
-          >
-            Yes
-          </button>
-        </div>
+        <ButtonContainer>
+          <ButtonPlaceholder></ButtonPlaceholder>
+          <CenterText>Do you really want to delete the Matrix?</CenterText>
+          <Buttons>
+            <CancelButton
+              onClick={() => {
+                setEdit("edit");
+              }}
+            >
+              No
+            </CancelButton>
+            <SaveButton
+              onClick={() => {
+                clearShapes();
+              }}
+            >
+              Yes
+            </SaveButton>
+          </Buttons>
+        </ButtonContainer>
       )}
       {edit === "save" && (
-        <div>
-          <h4>Save the current Matrix</h4>
-          <p>Do you really want to save this Matrix</p>
+        <div className="w-100 d-flex flex-row justify-content-between align-items-center">
+          <p>Do you really want to save this Matrix?</p>
+          <input type="text" value={name} onChange={(e) => setName(e.target.value)} />
+          <Buttons>
+            <CancelButton
+              onClick={() => {
+                setEdit("edit");
+              }}
+            >
+              No
+            </CancelButton>
+            <SaveButton
+              onClick={() => {
+                newMatrix();
+              }}
+              disabled={name === ""}
+            >
+              Yes
+            </SaveButton>
+          </Buttons>
+        </div>
+      )}
+    </Container>
+  );
+};
+
+export default CreateConfiguration;
+
+/*
           <input type="text" value={name} onChange={(e) => setName(e.target.value)} />{" "}
           <button
             className="btn btn-danger"
@@ -320,10 +356,6 @@ const CreateConfiguration = ({ returnTab }) => {
           >
             Yes
           </button>
-        </div>
-      )}
-    </Container>
-  );
-};
 
-export default CreateConfiguration;
+
+*/

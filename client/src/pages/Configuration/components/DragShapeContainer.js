@@ -17,6 +17,7 @@ const getSizeFromRatio = (sections) => {
   if (ratios.includes("32:9") || ratios.filter((ratio) => ratio === "16:9").length >= 2) return 1;
   return 1;
 };
+
 const DragShapeContainer = ({ filteredPlayers, playerRatio, drag, setEdit }) => {
   return (
     <Players>

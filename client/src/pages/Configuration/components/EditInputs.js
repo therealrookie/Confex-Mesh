@@ -4,45 +4,25 @@ import { useEditMatrix } from "../context/EditMatrixContext";
 import { useEditZone } from "../context/EditZoneContext";
 import { getPlayers, updateZone } from "../../../services/database";
 import styled from "styled-components";
+import { Container, PlayerContainer, Players, ZoneContainer, ZoneShape, ZoneText } from "./StyledComponents";
 
-const Container = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  margin-bottom: 20px;
-`;
+const getSizeFromRatio = (sections) => {
+  const ratios = Object.values(sections);
+  const largestRatio = Math.max(
+    ...ratios.map((ratio) => parseInt(ratio.split(":")[0], 10) / parseInt(ratio.split(":")[1], 10))
+  );
 
-const PlayerContainer = styled.div`
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  background-color: #f9f9f9;
-  display: flex;
-  flex-direction: column;
-`;
+  if (ratios.includes("144:9")) return 4;
+  if (
+    ratios.includes("64:9") ||
+    ratios.filter((ratio) => ratio === "32:9").length >= 2 ||
+    ratios.filter((ratio) => ratio === "16:9").length >= 4
+  )
+    return 2;
+  if (ratios.includes("32:9") || ratios.filter((ratio) => ratio === "16:9").length >= 2) return 1;
+  return 1;
+};
 
-const ZoneContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-`;
-
-const ZoneShape = styled.div`
-  position: relative;
-  border: 1px solid #000;
-  border-radius: 4px;
-  margin: 10px 10px;
-  background-color: #e0e0e0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 50px;
-  width: ${(props) => (50 * props.$ratioWidth) / props.$ratioHeight}px; /* Calculate width based on ratio */
-`;
-
-const ZoneText = styled.div`
-  position: absolute;
-  text-align: center;
-  white-space: nowrap;
-`;
 // handle: Timeline Handle\/
 const EditInputs = ({ matrixId }) => {
   const [zoneBody, setZoneBody] = useState();
@@ -84,14 +64,96 @@ const EditInputs = ({ matrixId }) => {
     return <pre>{JSON.stringify(playersQuery.error)}</pre>;
   }
 
-  const matchingPlayers = playersQuery.data.filter((player) => {
+  const filteredPlayers = playersQuery.data.filter((player) => {
     const sectionValues = Object.values(player.sections);
     const matchFound = sectionValues.includes(editZone.ratio);
     return matchFound;
   });
 
   return (
-    <div>
+    <Players>
+      {filteredPlayers.length > 0 ? (
+        filteredPlayers.map((player) => {
+          const span = getSizeFromRatio(player.sections);
+          return (
+            <PlayerContainer key={player.playerId} span={span}>
+              <h4>{player.name}</h4>
+              <ZoneContainer>
+                {Object.entries(player.sections).map(
+                  ([section, ratio]) =>
+                    ratio === editZone.ratio && (
+                      <ZoneShape
+                        onClick={() => {
+                          replaceInput(player.player_id, section);
+                        }}
+                        key={section}
+                        playerId={player.playerId}
+                        $ratioWidth={parseInt(ratio.split(":")[0], 10)}
+                        $ratioHeight={parseInt(ratio.split(":")[1], 10)}
+                      >
+                        <ZoneText>Zone {section}</ZoneText>
+                      </ZoneShape>
+                    )
+                )}
+              </ZoneContainer>
+            </PlayerContainer>
+          );
+        })
+      ) : (
+        <p>No players with matching ratios found.</p>
+      )}
+    </Players>
+  );
+};
+
+export default EditInputs;
+
+/*
+  const { editMatrix } = useEditMatrix();
+
+
+  const PlayerContainer = styled.div`
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  display: flex;
+  flex-direction: column;
+`;
+
+const Container = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 20px;
+`;
+
+const ZoneContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+`;
+
+const ZoneShape = styled.div`
+  position: relative;
+  border: 1px solid #000;
+  border-radius: 4px;
+  margin: 10px 10px;
+  background-color: #e0e0e0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50px;
+  width: ${(props) => (50 * props.$ratioWidth) / props.$ratioHeight}px; 
+  `;
+
+  const ZoneText = styled.div`
+    position: absolute;
+    text-align: center;
+    white-space: nowrap;
+  `;
+  
+
+
+      <div>
       <Container>
         {matchingPlayers.length > 0 ? (
           matchingPlayers.map((player) => (
@@ -123,11 +185,5 @@ const EditInputs = ({ matrixId }) => {
         )}
       </Container>
     </div>
-  );
-};
 
-export default EditInputs;
-
-/*
-  const { editMatrix } = useEditMatrix();
 */
