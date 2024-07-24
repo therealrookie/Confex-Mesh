@@ -4,10 +4,17 @@ import styled from "styled-components";
 import { TrashIcon, EditIcon } from "../../../assets/icons";
 import Modal from "./Modal";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getTimelines, setTransportMode, setTimelineName } from "../../../services/api";
+import {
+  getTimelines,
+  setTransportMode,
+  setTimelineName,
+  deleteTimeline,
+  stopAllTimelines,
+} from "../../../services/api";
 import EditInputs from "./EditInputs";
 import { useEditMatrix } from "../context/EditMatrixContext";
 import { EditZoneProvider, useEditZone } from "../context/EditZoneContext";
+import { usePlayingMatrix } from "../../../context/PlayingMatrixContext";
 import { deleteMatrix, getMatrices } from "../../../services/database";
 import MatrixName from "./MatrixName";
 import EditTransportMode from "./EditTransportMode";
@@ -40,7 +47,7 @@ const MatrixList = () => {
 
   const { editMatrix, setEditMatrix } = useEditMatrix();
   const { editZone, setEditZone } = useEditZone();
-
+  const { playingMatrix, setPlayingMatrix, updatePlayingMatrix } = usePlayingMatrix();
   const queryClient = useQueryClient();
 
   /*
@@ -60,46 +67,40 @@ const MatrixList = () => {
     },
   });
 
-  /*
-  const timelinesTransportMutation = useMutation({
-    mutationFn: ({ handle, mode }) => setTransportMode(handle, mode),
-    onSuccess: () => {
-      queryClient.invalidateQueries(["timelines"]);
-    },
-  });
-
-  
-  const timelineNameMutation = useMutation({
-    mutationFn: ({ handle, editName }) => {
-      return setTimelineName(handle, editName);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(["timelines"]);
-    },
-  });
-*/
-
   const handleModal = (matrix, type) => {
     setSelectedMatrix(matrix);
     setModalType(type);
     setModalOpen(true);
   };
 
+  const playSelectedMatrix = async () => {
+    if (playingMatrix) {
+      await setTransportMode(playingMatrix.timeline_handle, 3);
+    }
+    await setTransportMode(selectedMatrix.timeline_handle, 1);
+    setPlayingMatrix(selectedMatrix);
+    updatePlayingMatrix();
+  };
+
   const onSaveAction = () => {
     switch (modalType) {
       case "setActive":
-        setTransportMode(selectedMatrix?.handle, 1);
-        window.location.reload();
+        playSelectedMatrix();
+        updatePlayingMatrix();
         break;
       case "delete":
         deleteMatrix(selectedMatrix.matrix_id);
+        deleteTimeline(selectedMatrix.timeline_handle);
         break;
       case "setInactive":
-        setTransportMode(selectedMatrix?.handle, 3);
-        window.location.reload();
+        setTransportMode(selectedMatrix.timeline_handle, 3);
+        updatePlayingMatrix();
+
         break;
     }
+
     setModalOpen(false);
+    window.location.reload();
   };
 
   return (
@@ -144,7 +145,10 @@ const MatrixList = () => {
                         />
                       </td>
                       <td className="icon-column">
-                        <EditTransportMode timelineHandle={matrix.timeline_handle} />
+                        <EditTransportMode
+                          timeline={matrix}
+                          changeTransportMode={(timeline, type) => handleModal(timeline, type)}
+                        />
                       </td>
                       <td className="icon-column">
                         <EditIcon

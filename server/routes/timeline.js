@@ -8,6 +8,7 @@ router.get("/set-transport/:handle/:mode", (req, res) => {
   try {
     const timelineHandle = parseInt(req.params.handle);
     const transportMode = parseInt(req.params.mode);
+    console.log("HERE: ", timelineHandle, transportMode);
     const message =
       JSON.stringify({
         jsonrpc: "2.0",
@@ -38,6 +39,23 @@ router.get("/names", async (req, res) => {
     res.send(timelines);
   } catch (error) {
     res.status(500).send({ error: error.message });
+  }
+});
+
+router.get("/get-transport/:handle", async (req, res) => {
+  try {
+    const handle = parseInt(req.params.handle);
+    const message =
+      JSON.stringify({
+        jsonrpc: "2.0",
+        id: 463,
+        method: "Pixera.Timelines.Timeline.getTransportMode",
+        params: { handle: handle },
+      }) + "0xPX";
+    const data = JSON.parse(await sendTcpData(message));
+    res.status(201).json(data.result);
+  } catch (error) {
+    res.status(500).send({ error: err.message });
   }
 });
 
@@ -141,6 +159,23 @@ async function getLayerName(handle) {
 router.get("/create-timeline", async (req, res) => {
   try {
     const message = JSON.stringify({ jsonrpc: "2.0", id: 420, method: "Pixera.Timelines.createTimeline" }) + "0xPX";
+    const data = JSON.parse(await sendTcpData(message));
+    res.status(201).json(data.result);
+  } catch (error) {
+    res.status(500).send({ error: err.message });
+  }
+});
+
+router.get("/delete-timeline/:handle", async (req, res) => {
+  try {
+    const timelineHandle = parseInt(req.params.handle);
+    const message =
+      JSON.stringify({
+        jsonrpc: "2.0",
+        id: 422,
+        method: "Pixera.Timelines.Timeline.removeThis",
+        params: { handle: timelineHandle },
+      }) + "0xPX";
     const data = JSON.parse(await sendTcpData(message));
     res.status(201).json(data.result);
   } catch (error) {

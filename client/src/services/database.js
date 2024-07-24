@@ -1,11 +1,17 @@
 import axios from "axios";
 
-const URL = "http://10.10.10.102";
-const PORT = 5000;
+export function getUrl() {
+  const PORT = 5000;
+  const URL = "http://10.10.10.102";
+
+  return `${URL}:${PORT}`;
+}
+
+const URL = getUrl();
 
 export function updatePlayer(body) {
   return axios
-    .put(`${URL}:${PORT}/players`, {
+    .put(`${URL}/players`, {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     })
@@ -13,28 +19,29 @@ export function updatePlayer(body) {
 }
 
 export function getPlayers() {
-  return axios.get(`${URL}:${PORT}/players`).then((res) => res.data);
+  return axios.get(`${URL}/players`).then((res) => res.data);
 }
 
 export async function getMatrices() {
-  return axios.get(`${URL}:${PORT}/data/matrices`).then((res) => res.data);
+  console.log("GET MATRICES");
+  return axios.get(`${URL}/data/matrices`).then((res) => res.data);
 }
 
 export function getZones() {
-  return axios.get(`${URL}:${PORT}/data/zones`).then((res) => res.data);
+  return axios.get(`${URL}/data/zones`).then((res) => res.data);
 }
 
 export function getZone(zoneId) {
-  return axios.get(`${URL}:${PORT}/data/zone/${zoneId}`).then((res) => res.data);
+  return axios.get(`${URL}/data/zone/${zoneId}`).then((res) => res.data);
 }
 
 export function getZonesFromMatrixId(matrixId) {
-  return axios.get(`${URL}:${PORT}/data/zones/${matrixId}`).then((res) => res.data);
+  return axios.get(`${URL}/data/zones/${matrixId}`).then((res) => res.data);
 }
 
 export function addMatrix(timelineHandle, name) {
   return axios
-    .post(`${URL}:${PORT}/data/matrix`, {
+    .post(`${URL}/data/matrix`, {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ timelineHandle, name }),
     })
@@ -43,7 +50,7 @@ export function addMatrix(timelineHandle, name) {
 
 export function addZone(body) {
   return axios
-    .post(`${URL}:${PORT}/data/zone`, {
+    .post(`${URL}/data/zone`, {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     })
@@ -52,7 +59,7 @@ export function addZone(body) {
 
 export function updateMatrixName(matrixId, name) {
   return axios
-    .put(`${URL}:${PORT}/data/matrix-name`, {
+    .put(`${URL}/data/matrix-name`, {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ matrixId, name }),
     })
@@ -61,7 +68,7 @@ export function updateMatrixName(matrixId, name) {
 
 export function updateZone(body) {
   return axios
-    .put(`${URL}:${PORT}/data/update-zone`, {
+    .put(`${URL}/data/update-zone`, {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     })
@@ -69,8 +76,10 @@ export function updateZone(body) {
 }
 
 export function updateHandle(newTimelineHandle, matrixId) {
+  console.log("UPDATE HANDLE");
+
   return axios
-    .put(`${URL}:${PORT}/data/update-handle`, {
+    .put(`${URL}/data/update-handle`, {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ newTimelineHandle, matrixId }),
     })
@@ -78,7 +87,7 @@ export function updateHandle(newTimelineHandle, matrixId) {
 }
 
 export function deleteMatrix(matrixId) {
-  return axios.delete(`${URL}:${PORT}/data/delete-matrix/${matrixId}`).then((res) => res.data);
+  return axios.delete(`${URL}/data/delete-matrix/${matrixId}`).then((res) => res.data);
 }
 
 /*
