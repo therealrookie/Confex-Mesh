@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "../sass/configuration.css";
 import { useQuery } from "@tanstack/react-query";
-import { addMatrix, getPlayers, addZone } from "../../../services/database";
+import { addMatrix, getPlayers, addZone, updateEffects } from "../../../services/database";
 import RatioTabs from "./RatioTabs";
 import { getSnapPosition, clientInsideRect } from "../../../services/matrixConfigFunctions";
 import {
@@ -30,6 +30,11 @@ const CreateConfiguration = ({ returnTab }) => {
   const playersQuery = useQuery({
     queryKey: ["players"],
     queryFn: getPlayers,
+  });
+
+  const effectQuery = useQuery({
+    queryKey: ["cropping"],
+    queryFn: updateEffects,
   });
 
   const allowDrop = (event) => {
@@ -190,11 +195,11 @@ const CreateConfiguration = ({ returnTab }) => {
         screenContainerRect.height
       );
       const player = playersQuery.data.find((player) => player.player_id === shape.playerId);
-      const layerHandle = createNewLayer(timelineHandle, leftPercentage, player, shape.zone);
+      const handle = await createNewLayer(timelineHandle, leftPercentage, player, shape.zone);
       await addZone({
         matrixId: matrixData.matrix.matrix_id,
         playerId: shape.playerId,
-        layerHandle: layerHandle,
+        layerHandle: handle.layerHandle,
         posLeft: leftPercentage,
         section: shape.zone,
       });

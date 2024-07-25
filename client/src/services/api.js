@@ -42,7 +42,7 @@ export function setTimelineName(handle, name) {
     .then((res) => res.data);
 }
 
-export function createLayer(handle, body) {
+export function createLayer(body) {
   return axios
     .post(`${URL}/pixera/layer/create`, {
       headers: {

@@ -183,11 +183,8 @@ async function getResourceName(handle) {
 }
 
 router.post("/set-name", async (req, res) => {
-  console.log("REQ.BODY: ", req.body);
-
   try {
     const { handle, name } = JSON.parse(req.body.body);
-    console.log("NEW INPUT NAME: ", handle, name);
     const message =
       JSON.stringify({
         jsonrpc: "2.0",

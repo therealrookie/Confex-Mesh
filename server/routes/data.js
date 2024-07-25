@@ -139,4 +139,34 @@ router.delete("/delete-matrix/:matrixId", async (req, res) => {
   }
 });
 
+router.put("/update-effect", async (req, res) => {
+  try {
+    const { effectName, effectHandle } = JSON.parse(req.body.body);
+    console.log(effectHandle);
+    const helper = await pool.query("UPDATE helper SET data = $1 WHERE name = $2 RETURNING *", [
+      effectHandle,
+      effectName,
+    ]);
+    res.status(200).json({
+      message: "Effect was updated!",
+      helper: helper.rows[0],
+    });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+async function getCropEffect(req, res) {
+  try {
+    const helper = await pool.query("SELECT data FROM helper WHERE name = $1", ["CroppingHardEdge"]);
+    return res.json(helper.rows); // Send the data as a JSON response
+  } catch (error) {
+    console.error(error.message);
+    return res.status(500).json({ error: "Internal Server Error" }); // Properly handle the error response
+  }
+}
+
+router.get("/crop-effect", getCropEffect);
+
 module.exports = router;

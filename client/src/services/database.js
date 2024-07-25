@@ -1,4 +1,5 @@
 import axios from "axios";
+import { getEffects } from "./api";
 
 export function getUrl() {
   const PORT = 5000;
@@ -37,6 +38,18 @@ export function getZone(zoneId) {
 
 export function getZonesFromMatrixId(matrixId) {
   return axios.get(`${URL}/data/zones/${matrixId}`).then((res) => res.data);
+}
+
+export async function updateEffects() {
+  const effects = await getEffects();
+  const cropping = effects.find((effect) => effect.name === "CroppingHardEdge");
+  const body = { effectName: cropping.name, effectHandle: cropping.handle };
+  return axios
+    .put(`${URL}/data/update-effect`, {
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    })
+    .then((res) => res.data);
 }
 
 export function addMatrix(timelineHandle, name) {

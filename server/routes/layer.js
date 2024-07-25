@@ -3,6 +3,8 @@
 const express = require("express");
 const router = express.Router();
 const { sendTcpData } = require("../config");
+const axios = require("axios");
+const pool = require("../db");
 
 router.get("/description/:handle", async (req, res) => {
   try {
@@ -206,18 +208,50 @@ async function createLayer(timelineHandle) {
   return data.result;
 }
 
-async function assignCropping(layerHandle) {
-  const message =
-    JSON.stringify({
-      jsonrpc: "2.0",
-      id: 550,
-      method: "Pixera.Timelines.Layer.addEffectById",
-      params: { handle: layerHandle, id: 5291870998710781 },
-    }) + "0xPX";
-  const answer = JSON.parse(await sendTcpData(message));
-  if (answer.error) throw new Error(answer.error.message);
-  return answer;
+// Define the getCropEffect function
+async function getCropEffect() {
+  try {
+    const helper = await pool.query("SELECT data FROM helper WHERE name = $1", ["CroppingHardEdge"]);
+    return helper.rows[0]; // Return the first row of the result
+  } catch (error) {
+    console.error(error.message);
+    throw new Error("Error fetching crop effect data from the database");
+  }
 }
+
+// Define the assignCropping function
+async function assignCropping(layerHandle) {
+  try {
+    // Directly call the getCropEffect function to get the data
+    const cropEffectData = await getCropEffect();
+
+    const message =
+      JSON.stringify({
+        jsonrpc: "2.0",
+        id: 550,
+        method: "Pixera.Timelines.Layer.addEffectById",
+        params: { handle: layerHandle, id: parseInt(cropEffectData.data) }, // Use the data from getCropEffect
+      }) + "0xPX";
+
+    const answer = JSON.parse(await sendTcpData(message));
+    if (answer.error) throw new Error(answer.error.message);
+    return answer;
+  } catch (error) {
+    console.error(error.message);
+    throw new Error("Error in assignCropping function");
+  }
+}
+
+// Example route that uses assignCropping function
+router.post("/assign-cropping", async (req, res) => {
+  const { layerHandle } = req.body;
+  try {
+    const result = await assignCropping(layerHandle);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 async function setDescription(handle, width, height, xPos, left, right, top, bottom) {
   console.log("WIDTH: ", width, height);
@@ -234,7 +268,7 @@ async function setDescription(handle, width, height, xPos, left, right, top, bot
         descrip: JSON.stringify({
           //Media: "Media/Player 1 [FULLSCREEN] LEFT",
           Position: { X: 0, Y: 0, Z: 0.0 },
-          Cropping: { Left: left, Right: right, Top: top, Bottom: bottom, "Mix[%]": 100 },
+          CroppingHardEdge: { Left: left, Right: right, Top: top, Bottom: bottom, "Mix[%]": 100 },
           Size: { D: 0.0, H: height, W: width },
         }),
         makeAllDominant: true,
@@ -330,7 +364,7 @@ async function setHomescreen(layerHandle) {
       jsonrpc: "2.0",
       id: 546,
       method: "Pixera.Timelines.Layer.setHomeScreenFromScreenName",
-      params: { handle: layerHandle, screenName: "WALL" },
+      params: { handle: layerHandle, screenName: "LED Wall" },
     }) + "0xPX";
   const answer = JSON.parse(await sendTcpData(message));
   if (answer.error) throw new Error(answer.error.message);
