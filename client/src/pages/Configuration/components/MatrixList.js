@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Matrix from "./Matrix";
 import styled from "styled-components";
-import { TrashIcon, EditIcon } from "../../../assets/icons";
+import { TrashIcon, EditIcon, Reload } from "../../../assets/icons";
 import Modal from "./Modal";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -15,9 +15,10 @@ import EditInputs from "./EditInputs";
 import { useEditMatrix } from "../context/EditMatrixContext";
 import { EditZoneProvider, useEditZone } from "../context/EditZoneContext";
 import { usePlayingMatrix } from "../../../context/PlayingMatrixContext";
-import { deleteMatrix, getMatrices } from "../../../services/database";
+import { deleteMatrix, getMatrices, updateHandle, updateZone, getZonesFromMatrixId } from "../../../services/database";
 import MatrixName from "./MatrixName";
 import EditTransportMode from "./EditTransportMode";
+import { checkTimelines, createNewTimeline, createNewLayer } from "../services/createTimeline";
 
 const BottomBorder = styled.div`
   width: 100%;
@@ -44,18 +45,17 @@ const MatrixList = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedMatrix, setSelectedMatrix] = useState(null);
   const [modalType, setModalType] = useState("");
+  const [matrixIdToUpdate, setMatrixIdToUpdate] = useState(null);
 
   const { editMatrix, setEditMatrix } = useEditMatrix();
   const { editZone, setEditZone } = useEditZone();
   const { playingMatrix, setPlayingMatrix, updatePlayingMatrix } = usePlayingMatrix();
   const queryClient = useQueryClient();
 
-  /*
   const timelinesQuery = useQuery({
     queryKey: ["timelines"],
     queryFn: () => getTimelines(),
   });
-  */
 
   const matrixQuery = useQuery({
     queryKey: ["matrices"],
@@ -66,6 +66,18 @@ const MatrixList = () => {
       console.error("Error fetching matrices:", error);
     },
   });
+
+  const zonesQuery = useQuery({
+    queryKey: ["zones", matrixIdToUpdate],
+    queryFn: () => getZonesFromMatrixId(matrixIdToUpdate),
+    enabled: !!matrixIdToUpdate,
+  });
+
+  useEffect(() => {
+    if (zonesQuery.data && matrixIdToUpdate) {
+      updateTimelineAndLayers(matrixIdToUpdate, zonesQuery.data);
+    }
+  }, [zonesQuery.data, matrixIdToUpdate]);
 
   const handleModal = (matrix, type) => {
     setSelectedMatrix(matrix);
@@ -103,6 +115,28 @@ const MatrixList = () => {
     window.location.reload();
   };
 
+  const reloadTimelines = () => {
+    const missingTimelines = checkTimelines(timelinesQuery.data, matrixQuery.data);
+    console.log("MISSING TIMELINES", missingTimelines);
+    missingTimelines.forEach((matrixId) => {
+      console.log("ID", matrixId);
+      setMatrixIdToUpdate(matrixId);
+    });
+  };
+
+  const updateTimelineAndLayers = async (matrixId, zones) => {
+    const matrix = matrixQuery.data.find((matrix) => matrix.matrix_id === matrixId);
+    const timelineHandle = await createNewTimeline(matrix.name);
+    /*
+    updateHandle(timelineHandle, matrixId);
+    zones.forEach(async (zone) => {
+      const layerHandle = await createNewLayer(timelineHandle, zone.pos_left, zone.player_id, zone.section);
+      const body = { playerId: zone.player_id, layerHandle: layerHandle, section: zone.section, zoneId: zone.zone_id };
+      updateZone(body);
+    });
+*/
+  };
+
   return (
     <div>
       <Modal
@@ -118,6 +152,12 @@ const MatrixList = () => {
 
       {matrixQuery.isLoading && <div className="spinner-border" role="status"></div>}
       {matrixQuery.isError && <span className="badge text-light text-bg-danger">Error</span>}
+
+      <Reload
+        onClick={() => {
+          reloadTimelines();
+        }}
+      ></Reload>
 
       <StyledTable className="table mt-5 text-center table-borderless">
         <thead>

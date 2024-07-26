@@ -1,5 +1,22 @@
 import { createLayer, createTimeline, setTimelineName } from "../../../services/api";
 
+export function checkTimelines(timelines, matrices) {
+  let missingTimelines = [];
+  for (const matrix of matrices) {
+    let found = false;
+    for (const timeline of timelines) {
+      if (timeline.handle === matrix.timeline_handle) {
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      missingTimelines.push(matrix.matrix_id);
+    }
+  }
+  return missingTimelines;
+}
+
 export async function createNewTimeline(name) {
   const timelineHandle = await createTimeline();
   setTimelineName(timelineHandle, name);
@@ -25,9 +42,9 @@ export function createNewLayer(timelineHandle, left, player, zone) {
     case "144:9":
       return addFullscreenLayer(timelineHandle, player.resource_handle);
     case "64:9":
-      return add64by9Layer(timelineHandle, left, player, zone);
+      return add64by9Layer(timelineHandle, left, player.resource_handle, zone);
     case "32:9":
-      return add32by9Layer(timelineHandle, left, player, zone);
+      return add32by9Layer(timelineHandle, left, player.resource_handle, zone);
     case "16:9":
       return add16by9Layer(timelineHandle, left, player.resource_handle);
     default:
@@ -37,48 +54,22 @@ export function createNewLayer(timelineHandle, left, player, zone) {
 }
 
 function addFullscreenLayer(timelineHandle, resourceId) {
-  const bodyLeft = {
-    timelineHandle: timelineHandle,
-    width: 3840,
-    height: 2160,
-    xPos: -1800,
-    yPos: -849,
-    resourceID: resourceId,
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-  };
+  const bodyLeft = layerBody(timelineHandle, resourceId, 3840, 2160, -849);
+  const bodyRight = layerBody(timelineHandle, resourceId, 3840, 2160, 231);
+
+  bodyLeft.xPos = -1800;
+  bodyRight.xPos = 2040;
+
   const layerLeft = createLayer(bodyLeft);
-  const bodyRight = {
-    timelineHandle: timelineHandle,
-    width: 3840,
-    height: 2160,
-    xPos: 2040,
-    yPos: 231,
-    resourceID: resourceId,
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-  };
   const layerRight = createLayer(bodyRight);
   return `${layerLeft},${layerRight}`;
 }
 
-function add64by9Layer(timelineHandle, left, player, zone) {
-  const body = {
-    timelineHandle: timelineHandle,
-    width: 3840,
-    height: 2160,
-    xPos: 0,
-    yPos: -849,
-    resourceID: player.resource_handle,
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 78.47,
-  };
+function add64by9Layer(timelineHandle, left, resourceId, zone) {
+  const body = layerBody(timelineHandle, resourceId, 3840, 1080, -849);
+
+  body.bottom = 78.47;
+
   if (zone == 1) {
     body.xPos = scale(left, 0, 55.56, -1800, 2336); // most left and right possible postions
     body.right = 13.96;
@@ -108,19 +99,9 @@ function add64by9Layer(timelineHandle, left, player, zone) {
   return createLayer(body);
 }
 
-function add32by9Layer(timelineHandle, left, player, zone) {
-  const body = {
-    timelineHandle: timelineHandle,
-    width: 1920,
-    height: 1080,
-    xPos: 0,
-    yPos: -307,
-    resourceID: player.resource_handle,
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 56.94,
-  };
+function add32by9Layer(timelineHandle, left, resourceId, zone) {
+  const body = layerBody(timelineHandle, resourceId, 1920, 1080, -307);
+
   if (zone == 1) {
     body.xPos = scale(left, 0, 77.78, -2760, 3028); // most left and right possible postions
     body.right = 13.96;
