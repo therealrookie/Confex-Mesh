@@ -5,7 +5,7 @@ export function checkTimelines(timelines, matrices) {
   for (const matrix of matrices) {
     let found = false;
     for (const timeline of timelines) {
-      if (timeline.handle === matrix.timeline_handle) {
+      if (timeline.handle == matrix.timeline_handle) {
         found = true;
         break;
       }
@@ -35,16 +35,16 @@ function determineLargestResolution(resolutions) {
   }
 }
 
-export function createNewLayer(timelineHandle, left, player, zone) {
+export function createNewLayer(timelineHandle, left, player, section) {
   let largestResolution = determineLargestResolution(Object.values(player.sections));
 
   switch (largestResolution) {
     case "144:9":
       return addFullscreenLayer(timelineHandle, player.resource_handle);
     case "64:9":
-      return add64by9Layer(timelineHandle, left, player.resource_handle, zone);
+      return add64by9Layer(timelineHandle, left, player.resource_handle, section);
     case "32:9":
-      return add32by9Layer(timelineHandle, left, player.resource_handle, zone);
+      return add32by9Layer(timelineHandle, left, player.resource_handle, section);
     case "16:9":
       return add16by9Layer(timelineHandle, left, player.resource_handle);
     default:
@@ -65,50 +65,50 @@ function addFullscreenLayer(timelineHandle, resourceId) {
   return `${layerLeft},${layerRight}`;
 }
 
-function add64by9Layer(timelineHandle, left, resourceId, zone) {
-  const body = layerBody(timelineHandle, resourceId, 3840, 1080, -849);
+function add64by9Layer(timelineHandle, left, resourceId, section) {
+  const body = layerBody(timelineHandle, resourceId, 3840, 2160, -849);
 
   body.bottom = 78.47;
 
-  if (zone == 1) {
+  if (section == 1) {
     body.xPos = scale(left, 0, 55.56, -1800, 2336); // most left and right possible postions
     body.right = 13.96;
-  } else if (zone == 2.1) {
+  } else if (section == 2.1) {
     body.xPos = scale(left, 0, 77.78, -1800, 3988); // most left and right possible postions
     body.right = 56.93;
-  } else if (zone == 2.2) {
+  } else if (section == 2.2) {
     body.xPos = scale(left, 0, 77.78, -3452, 2336); // most left and right possible postions
     body.left = 43.07;
     body.right = 13.96;
-  } else if (zone == 4.1) {
+  } else if (section == 4.1) {
     body.xPos = scale(left, 0, 88.89, -1800, 4814); // most left and right possible postions
     body.right = 78.46;
-  } else if (zone == 4.2) {
+  } else if (section == 4.2) {
     body.xPos = scale(left, 0, 88.89, -2626, 3988); // most left and right possible postions
     body.left = 21.54;
     body.right = 56.92;
-  } else if (zone == 4.3) {
+  } else if (section == 4.3) {
     body.xPos = scale(left, 0, 88.89, -3452, 3162); // most left and right possible postions
     body.left = 43.07;
     body.right = 35.38;
-  } else if (zone == 4.4) {
-    body.xPos = scale(left, 0, 88.89, -4278, 2336); // most left and right possible postions
+  } else if (section == 4.4) {
+    body.xPos = scale(left, 0, 88.89, -4281, 2336); // most left and right possible postions
     body.left = 64.62;
     body.right = 13.96;
   }
   return createLayer(body);
 }
 
-function add32by9Layer(timelineHandle, left, resourceId, zone) {
+function add32by9Layer(timelineHandle, left, resourceId, section) {
   const body = layerBody(timelineHandle, resourceId, 1920, 1080, -307);
 
-  if (zone == 1) {
+  if (section == 1) {
     body.xPos = scale(left, 0, 77.78, -2760, 3028); // most left and right possible postions
     body.right = 13.96;
-  } else if (zone == 2.1) {
+  } else if (section == 2.1) {
     body.xPos = scale(left, 0, 88.89, -2760, 3854); // most left and right possible postions
     body.right = 56.93;
-  } else if (zone == 2.2) {
+  } else if (section == 2.2) {
     body.xPos = scale(left, 0, 88.89, -3586, 3028); // most left and right possible postions
     body.left = 43.07;
     body.right = 13.96;
@@ -138,6 +138,8 @@ const layerBody = (timelineHandle, resourceId, width, height, yPos) => {
     right: 0,
     top: 0,
     bottom: 0,
+    scaleX: 1.001,
+    scaleY: 1.0,
   };
 };
 

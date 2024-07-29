@@ -21,8 +21,20 @@ const Navbar = () => {
         <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
           <div className="navbar-nav justify-content-center flex-grow-1">
             <CustomLink to="/">Main</CustomLink>
-            <CustomLink to="/control">Control</CustomLink>
             <CustomLink to="/configuration">Configuration</CustomLink>
+          </div>
+        </div>
+      </div>
+    </nav>
+  );
+};
+
+export default Navbar;
+
+/*
+            <CustomLink to="/control">Control</CustomLink>
+
+
             <CustomLink to="/admin">Admin</CustomLink>
             <li className="nav-item dropdown ms-auto">
               <a
@@ -47,11 +59,5 @@ const Navbar = () => {
                 </li>
               </ul>
             </li>
-          </div>
-        </div>
-      </div>
-    </nav>
-  );
-};
 
-export default Navbar;
+*/

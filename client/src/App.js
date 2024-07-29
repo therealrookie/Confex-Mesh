@@ -20,11 +20,7 @@ function App() {
       <PlayingMatrixProvider>
         <Routes>
           <Route path="/" element={<Main />} />
-          <Route path="/control" element={<Control />} />
           <Route path="/configuration" element={<Configuration />} />
-          <Route path="/admin" element={<Admin />} />
-          <Route path="/account" element={<Account />} />
-          <Route path="/logout" element={<Login />} />
         </Routes>
       </PlayingMatrixProvider>
     </Fragment>
@@ -34,7 +30,14 @@ function App() {
 export default App;
 
 /*
+          <Route path="/control" element={<Control />} />
+
       <Footer />
+
+                <Route path="/admin" element={<Admin />} />
+          <Route path="/account" element={<Account />} />
+          <Route path="/logout" element={<Login />} />
+
 
 
 */

@@ -12,6 +12,7 @@ export const EditZoneProvider = ({ children }) => {
     layerHandle: null,
     section: null,
     ratio: null,
+    left: null,
   });
 
   return <EditZoneContext.Provider value={{ editZone, setEditZone }}>{children}</EditZoneContext.Provider>;

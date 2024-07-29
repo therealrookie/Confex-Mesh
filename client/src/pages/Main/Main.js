@@ -27,13 +27,6 @@ const Main = () => {
       </Row>
       <Row>
         <Col>
-          <h1>Nexshop Inputs</h1>
-
-          <NexshopPlayerStatus />
-        </Col>
-      </Row>
-      <Row>
-        <Col>
           <h1>Pixera Media Server</h1>
           <PixeraStatus />
         </Col>
@@ -57,5 +50,14 @@ export default Main;
 
           <PreviewWinow />
         </Col>
+
+              <Row>
+        <Col>
+          <h1>Nexshop Inputs</h1>
+
+          <NexshopPlayerStatus />
+        </Col>
+      </Row>
+
 
 */

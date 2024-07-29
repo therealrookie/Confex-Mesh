@@ -10,12 +10,20 @@ import {
   setTimelineName,
   deleteTimeline,
   stopAllTimelines,
+  getLayerData,
 } from "../../../services/api";
 import EditInputs from "./EditInputs";
 import { useEditMatrix } from "../context/EditMatrixContext";
 import { EditZoneProvider, useEditZone } from "../context/EditZoneContext";
 import { usePlayingMatrix } from "../../../context/PlayingMatrixContext";
-import { deleteMatrix, getMatrices, updateHandle, updateZone, getZonesFromMatrixId } from "../../../services/database";
+import {
+  deleteMatrix,
+  getMatrices,
+  updateHandle,
+  updateZone,
+  getZonesFromMatrixId,
+  getPlayerById,
+} from "../../../services/database";
 import MatrixName from "./MatrixName";
 import EditTransportMode from "./EditTransportMode";
 import { checkTimelines, createNewTimeline, createNewLayer } from "../services/createTimeline";
@@ -73,12 +81,6 @@ const MatrixList = () => {
     enabled: !!matrixIdToUpdate,
   });
 
-  useEffect(() => {
-    if (zonesQuery.data && matrixIdToUpdate) {
-      updateTimelineAndLayers(matrixIdToUpdate, zonesQuery.data);
-    }
-  }, [zonesQuery.data, matrixIdToUpdate]);
-
   const handleModal = (matrix, type) => {
     setSelectedMatrix(matrix);
     setModalType(type);
@@ -115,26 +117,31 @@ const MatrixList = () => {
     window.location.reload();
   };
 
-  const reloadTimelines = () => {
-    const missingTimelines = checkTimelines(timelinesQuery.data, matrixQuery.data);
+  const reloadTimelines = async () => {
+    const missingTimelines = checkTimelines(await timelinesQuery.data, await matrixQuery.data);
     console.log("MISSING TIMELINES", missingTimelines);
-    missingTimelines.forEach((matrixId) => {
-      console.log("ID", matrixId);
-      setMatrixIdToUpdate(matrixId);
+    missingTimelines.forEach(async (matrixId) => {
+      const timelineHandle = await updateTimeline(matrixId);
+      updateLayers(timelineHandle, matrixId);
     });
   };
 
-  const updateTimelineAndLayers = async (matrixId, zones) => {
+  const updateTimeline = async (matrixId) => {
     const matrix = matrixQuery.data.find((matrix) => matrix.matrix_id === matrixId);
     const timelineHandle = await createNewTimeline(matrix.name);
-    /*
-    updateHandle(timelineHandle, matrixId);
-    zones.forEach(async (zone) => {
-      const layerHandle = await createNewLayer(timelineHandle, zone.pos_left, zone.player_id, zone.section);
-      const body = { playerId: zone.player_id, layerHandle: layerHandle, section: zone.section, zoneId: zone.zone_id };
-      updateZone(body);
+    const updateMatrixData = await updateHandle(timelineHandle, matrixId);
+    console.log("HANDLE", timelineHandle);
+    return parseInt(timelineHandle);
+  };
+
+  const updateLayers = async (timelineHandle, matrixId) => {
+    const zones = await getZonesFromMatrixId(matrixId);
+    zones.map(async (zone) => {
+      const player = await getPlayerById(zone.player_id);
+      console.log("LEFT: ", zone.pos_left);
+      const layerHandle = await createNewLayer(timelineHandle, zone.pos_left, player, zone.section);
+      console.log("LAYER: ", layerHandle);
     });
-*/
   };
 
   return (
@@ -147,17 +154,23 @@ const MatrixList = () => {
         type={modalType}
       />
 
-      {editMatrix ? <h1>Edit Matrix</h1> : <h1>Matrix List</h1>}
+      {editMatrix ? (
+        <h1>Edit Matrix</h1>
+      ) : (
+        <div className="d-flex w-100 justify-content-between align-items-center">
+          <h1>Matrix List</h1>
+          <Reload
+            onClick={() => {
+              reloadTimelines();
+            }}
+            style={{ cursor: "pointer", width: "25px", height: "25px", marginRight: "20px" }}
+          ></Reload>
+        </div>
+      )}
       {editMatrix ? <p>Edit the inputs of the following Matrix</p> : <p>List of currently available matrices</p>}
 
       {matrixQuery.isLoading && <div className="spinner-border" role="status"></div>}
       {matrixQuery.isError && <span className="badge text-light text-bg-danger">Error</span>}
-
-      <Reload
-        onClick={() => {
-          reloadTimelines();
-        }}
-      ></Reload>
 
       <StyledTable className="table mt-5 text-center table-borderless">
         <thead>

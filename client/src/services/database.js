@@ -23,6 +23,10 @@ export function getPlayers() {
   return axios.get(`${URL}/players`).then((res) => res.data);
 }
 
+export function getPlayerById(playerId) {
+  return axios.get(`${URL}/players/${playerId}`).then((res) => res.data);
+}
+
 export async function getMatrices() {
   console.log("GET MATRICES");
   return axios.get(`${URL}/data/matrices`).then((res) => res.data);
@@ -80,10 +84,10 @@ export function updateMatrixName(matrixId, name) {
 }
 
 export function updateZone(body) {
+  console.log("BODY: ", body);
   return axios
-    .put(`${URL}/data/update-zone`, {
+    .put(`${URL}/data/update-zone`, body, {
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
     })
     .then((res) => res.data);
 }

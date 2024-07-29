@@ -79,10 +79,11 @@ const Layer = ({ zone }) => {
           layerHandle: zone.layer_handle,
           section: zone.section,
           ratio: ratio,
+          left: zone.pos_left,
         });
       }}
     >
-      {ratio} {player ? player.name : "Loading..."}
+      {ratio} {player ? player.name : "Loading..."} {zone.section}
     </Shape>
   );
 };

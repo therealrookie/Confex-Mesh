@@ -93,10 +93,10 @@ router.put("/matrix-name", async (req, res) => {
   }
 });
 
-// Update Zone in zones
 router.put("/update-zone", async (req, res) => {
   try {
-    const { playerId, layerHandle, section, zoneId } = JSON.parse(req.body.body);
+    console.log("BODY: ", req.body);
+    const { playerId, layerHandle, section, zoneId } = req.body;
     const layer = await pool.query(
       "UPDATE zones SET player_id = $1, layer_handle = $2, section = $3 WHERE zone_id = $4 RETURNING *",
       [playerId, layerHandle, section, zoneId]

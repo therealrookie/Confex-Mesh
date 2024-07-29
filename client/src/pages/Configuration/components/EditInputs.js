@@ -2,9 +2,11 @@ import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import React, { useEffect, useState } from "react";
 import { useEditMatrix } from "../context/EditMatrixContext";
 import { useEditZone } from "../context/EditZoneContext";
-import { getPlayers, updateZone } from "../../../services/database";
+import { getPlayers, updateZone, getMatrices } from "../../../services/database";
+import { removeLayer } from "../../../services/api";
 import styled from "styled-components";
 import { Container, PlayerContainer, Players, ZoneContainer, ZoneShape, ZoneText } from "./StyledComponents";
+import { createNewLayer } from "../services/createTimeline";
 
 const getSizeFromRatio = (sections) => {
   const ratios = Object.values(sections);
@@ -27,29 +29,67 @@ const getSizeFromRatio = (sections) => {
 const EditInputs = ({ matrixId }) => {
   const [zoneBody, setZoneBody] = useState();
   const queryClient = useQueryClient();
-  const { editZone, setEditZone } = useEditZone(); // editZone: { zoneId, matrixId, playerId, layerHandle, section, ratio }
+  const { editZone, setEditZone } = useEditZone(); // editZone: { zoneId, matrixId, playerId, layerHandle, section, ratio, timelineHandle, left }
 
   const playersQuery = useQuery({
     queryKey: ["players"],
     queryFn: getPlayers,
   });
 
+  const matrixQuery = useQuery({
+    queryKey: ["matrices"],
+    queryFn: async () => {
+      return getMatrices();
+    },
+    onError: (error) => {
+      console.error("Error fetching matrices:", error);
+    },
+  });
+  /*
   const zoneMutation = useMutation({
     mutationFn: () => updateZone(zoneBody), // zoneBody: { playerId, layerHandle, section, zoneId }
     onSuccess: () => {
       queryClient.invalidateQueries(["zone", zoneBody.zoneId]);
     },
   });
+*/
 
-  const replaceInput = (playerId, section) => {
-    zoneMutation.mutate();
-    setZoneBody({
+  const updateTimeline = async (playerId, section) => {
+    console.log("EDITZONE: ", editZone);
+    const removed = await removeLayer(editZone.layerHandle);
+    const player = playersQuery.data.find((player) => player.player_id === playerId);
+    const matrix = matrixQuery.data.find((matrix) => matrix.matrix_id === editZone.matrixId);
+
+    const layerHandle =
+      removed && (await createNewLayer(parseInt(matrix.timeline_handle), editZone.left, player, section));
+    return parseInt(layerHandle);
+  };
+
+  const updateZones = async (playerId, section, layerHandle) => {
+    console.log("HERE");
+    const body = {
       playerId: playerId,
-      layerHandle: editZone.layerHandle,
+      layerHandle: layerHandle,
       section: section,
       zoneId: editZone.zoneId,
+    };
+    await updateZone(body);
+  };
+
+  const replaceInput = async (playerId, section) => {
+    const layerHandle = await updateTimeline(playerId, section);
+    await updateZones(playerId, section, layerHandle);
+
+    setEditZone({
+      zoneId: null,
+      matrixId: null,
+      playerId: null,
+      layerHandle: null,
+      section: null,
+      ratio: null,
+      left: null,
     });
-    setEditZone({ zoneId: null, matrixId: null, playerId: null, layerHandle: null, section: null, ratio: null });
+    window.location.reload();
   };
 
   if (editZone.zoneId === null) {

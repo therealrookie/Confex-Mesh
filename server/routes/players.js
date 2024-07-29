@@ -20,6 +20,8 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   try {
     const { id } = req.params;
+    console.log("PLAYER: ", id);
+
     const player = await pool.query("SELECT * FROM players WHERE player_id = $1", [id]);
     res.json(player.rows[0]);
   } catch (err) {

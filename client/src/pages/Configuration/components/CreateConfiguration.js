@@ -37,6 +37,8 @@ const CreateConfiguration = ({ returnTab }) => {
     queryFn: updateEffects,
   });
 
+  console.log("EFFECT: ", effectQuery.data);
+
   const allowDrop = (event) => {
     event.preventDefault();
   };

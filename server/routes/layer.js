@@ -17,7 +17,6 @@ router.get("/description/:handle", async (req, res) => {
         params: { handle: handle },
       }) + "0xPX";
     const data = JSON.parse(await sendTcpData(message));
-    console.log("DATA: ", data);
     res.send(data.result);
   } catch (error) {
     res.status(500).send({ error: error.message });
@@ -29,6 +28,8 @@ router.get("/data/:handle", async (req, res) => {
     const handle = parseInt(req.params.handle);
     const description = await getLayerDescription(handle);
     const offset = await getLayerOffset(handle);
+    console.log("DESCRIPTION: ", offset);
+
     const layerData = {
       handle: handle,
       input: description.Media,
@@ -183,7 +184,7 @@ router.post("/create", async (req, res) => {
     const resourceResponse = await assignResourceToLayer(layerHandle, resourceID);
     const effectResponse = await assignCropping(layerHandle);
     const clipHandle = await createClip(layerHandle);
-    const offset = await setOffset(layerHandle, xPos, yPos);
+    const offset = await setOffset(layerHandle, xPos, yPos, scaleX, scaleY);
     const descriptionResponse = await setDescription(layerHandle, width, height, xPos, left, right, top, bottom);
 
     //const resourceResponse = await assignResource(clipHandle, resourceID);
@@ -196,6 +197,7 @@ router.post("/create", async (req, res) => {
 });
 
 async function createLayer(timelineHandle) {
+  console.log("TIMELINE: ", timelineHandle);
   const message =
     JSON.stringify({
       jsonrpc: "2.0",
@@ -292,7 +294,7 @@ async function createClip(layerHandle) {
   return data.result;
 }
 
-async function setOffset(handle, xPos, yPos) {
+async function setOffset(handle, xPos, yPos, scaleX, scaleY) {
   const message =
     JSON.stringify({
       jsonrpc: "2.0",
@@ -302,6 +304,8 @@ async function setOffset(handle, xPos, yPos) {
         handle: handle,
         x: xPos / 500,
         y: yPos / 500,
+        xScale: 1.001,
+        yScale: scaleY,
       },
     }) + "0xPX";
   const data = JSON.parse(await sendTcpData(message));
