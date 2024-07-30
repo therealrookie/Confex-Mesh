@@ -35,7 +35,6 @@ const Main = () => {
         <Col>
           <h1>Novastar</h1>
           <NovastarStatus />
-          <LedStatus />
         </Col>
       </Row>
     </Container>
@@ -58,6 +57,9 @@ export default Main;
           <NexshopPlayerStatus />
         </Col>
       </Row>
+
+                <LedStatus />
+
 
 
 */

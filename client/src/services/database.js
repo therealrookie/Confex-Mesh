@@ -107,6 +107,10 @@ export function deleteMatrix(matrixId) {
   return axios.delete(`${URL}/data/delete-matrix/${matrixId}`).then((res) => res.data);
 }
 
+export function getNovastarIp(device) {
+  return axios.get(`${URL}/data/novastar/${device}`).then((res) => res.data);
+}
+
 /*
   const updatePlayer = async (id) => {
     const player = players.find((player) => player.id === id);

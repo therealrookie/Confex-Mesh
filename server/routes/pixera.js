@@ -8,6 +8,17 @@ const timelineRouter = require("./timeline");
 const inputRouter = require("./inputs");
 const layerRouter = require("./layer");
 
+router.get("/check", async (req, res) => {
+  try {
+    const ip = req.body.ip;
+    const message = JSON.stringify({ jsonrpc: "2.0", id: 5, method: "Pixera.Utility.getCurrentTime" }) + "0xPX";
+    const data = JSON.parse(await sendTcpData(message));
+    res.send(data.result);
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+});
+
 router.use("/timeline", timelineRouter);
 router.use("/inputs", inputRouter);
 router.use("/layer", layerRouter);
@@ -15,6 +26,8 @@ router.use("/layer", layerRouter);
 module.exports = router;
 
 /*
+
+{"jsonrpc":"2.0", "id":5, "method":"Pixera.Utility.getCurrentTime"}
 
  // Returns true if the resource is currently referred to in a timeline
       // (via a clip or a dominant value).

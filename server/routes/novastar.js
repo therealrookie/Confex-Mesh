@@ -78,4 +78,24 @@ async function adjustBrightness(cabinetIds, brightness) {
   }
 }
 
+router.put("/check-connection", async (req, res) => {
+  const novastarIP = req.body.ip;
+
+  var config = {
+    method: "get",
+    url: `http://${novastarIP}:8001/api/v1/device/monitor/info`,
+    headers: {
+      "User-Agent": "Apifox/1.0.0 (https://apifox.com)",
+    },
+  };
+
+  try {
+    const response = await axios(config);
+    res.status(200).json(response.data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to fetch connection status" });
+  }
+});
+
 module.exports = router;

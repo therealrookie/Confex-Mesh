@@ -1,12 +1,11 @@
 // novastarApi.js
 import axios from "axios";
 
-const URL = "http://10.10.10.102";
-const PORT = 5000;
+const URL = process.env.REACT_APP_SERVER_URL;
 
 export const getCabinets = (setCabinets, setBrightness) => {
   axios
-    .get(`${URL}:${PORT}/novastar/cabinets`, {})
+    .get(`${URL}/novastar/cabinets`, {})
     .then((response) => {
       setCabinets(response.data.cabinetIds);
       setBrightness(response.data.brightness[0] * 100);
@@ -22,7 +21,7 @@ export const handleSliderChange = (event, cabinets, setBrightness) => {
 
   // API request to change the brightness
   axios
-    .put(`${URL}:${PORT}/novastar/brightness`, {
+    .put(`${URL}/novastar/brightness`, {
       cabinets: cabinets,
       brightness: newBrightness,
     })
@@ -33,3 +32,7 @@ export const handleSliderChange = (event, cabinets, setBrightness) => {
       console.error("Error updating brightness:", error);
     });
 };
+
+export function checkNovastarConnection(ip) {
+  return axios.put(`${URL}/novastar/check-connection`, { ip }).then((res) => res.data);
+}

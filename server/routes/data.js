@@ -169,4 +169,36 @@ async function getCropEffect(req, res) {
 
 router.get("/crop-effect", getCropEffect);
 
+// Get Novastar main IP
+router.get("/novastar/main", async (req, res) => {
+  try {
+    const ip = await pool.query("SELECT * FROM helper WHERE name = $1", ["IP Novastar (main)"]);
+    res.json(ip.rows[0]);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+// Get Novastar backup (hot) IP
+router.get("/novastar/hot", async (req, res) => {
+  try {
+    const ip = await pool.query("SELECT * FROM helper WHERE name = $1", ["IP Novastar (backup hot)"]);
+    res.json(ip.rows[0]);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+// Get Novastar backup (cold) IP
+router.get("/novastar/cold", async (req, res) => {
+  try {
+    const ip = await pool.query("SELECT * FROM helper WHERE name = $1", ["IP Novastar (backup cold)"]);
+    res.json(ip.rows[0]);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
 module.exports = router;

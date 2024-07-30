@@ -190,7 +190,7 @@ router.post("/create", async (req, res) => {
     //const resourceResponse = await assignResource(clipHandle, resourceID);
 
     console.log("LAYERHANDLE: ", layerHandle);
-    res.status(201).json({ layerHandle });
+    res.status(201).json({ layerHandle: layerHandle });
   } catch (error) {
     res.status(500).send({ error: error.message });
   }
@@ -403,7 +403,7 @@ router.get("/remove/:handle", async (req, res) => {
         params: { handle: handle },
       }) + "0xPX";
     const data = JSON.parse(await sendTcpData(message));
-    res.sendStatus(200).send(data.result);
+    res.status(200).send(data.result);
   } catch (error) {
     res.status(500).send({ error: error.message });
   }

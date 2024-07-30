@@ -6,3 +6,4 @@ export { ReactComponent as TrashIcon } from "bootstrap-icons/icons/trash3-fill.s
 export { ReactComponent as HdmiIcon } from "bootstrap-icons/icons/hdmi.svg";
 export { ReactComponent as SdiIcon } from "./sdi-input.svg";
 export { ReactComponent as Reload } from "bootstrap-icons/icons/arrow-repeat.svg";
+export { ReactComponent as Rebuild } from "bootstrap-icons/icons/hammer.svg";

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Matrix from "./Matrix";
 import styled from "styled-components";
-import { TrashIcon, EditIcon, Reload } from "../../../assets/icons";
+import { TrashIcon, EditIcon, Rebuild } from "../../../assets/icons";
 import Modal from "./Modal";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -119,7 +119,6 @@ const MatrixList = () => {
 
   const reloadTimelines = async () => {
     const missingTimelines = checkTimelines(await timelinesQuery.data, await matrixQuery.data);
-    console.log("MISSING TIMELINES", missingTimelines);
     missingTimelines.forEach(async (matrixId) => {
       const timelineHandle = await updateTimeline(matrixId);
       updateLayers(timelineHandle, matrixId);
@@ -130,7 +129,6 @@ const MatrixList = () => {
     const matrix = matrixQuery.data.find((matrix) => matrix.matrix_id === matrixId);
     const timelineHandle = await createNewTimeline(matrix.name);
     const updateMatrixData = await updateHandle(timelineHandle, matrixId);
-    console.log("HANDLE", timelineHandle);
     return parseInt(timelineHandle);
   };
 
@@ -138,9 +136,13 @@ const MatrixList = () => {
     const zones = await getZonesFromMatrixId(matrixId);
     zones.map(async (zone) => {
       const player = await getPlayerById(zone.player_id);
-      console.log("LEFT: ", zone.pos_left);
       const layerHandle = await createNewLayer(timelineHandle, zone.pos_left, player, zone.section);
-      console.log("LAYER: ", layerHandle);
+      await updateZone({
+        playerId: zone.player_id,
+        layerHandle: layerHandle.layerHandle,
+        section: zone.section,
+        zoneId: zone.zone_id,
+      });
     });
   };
 
@@ -159,12 +161,12 @@ const MatrixList = () => {
       ) : (
         <div className="d-flex w-100 justify-content-between align-items-center">
           <h1>Matrix List</h1>
-          <Reload
+          <Rebuild
             onClick={() => {
               reloadTimelines();
             }}
             style={{ cursor: "pointer", width: "25px", height: "25px", marginRight: "20px" }}
-          ></Reload>
+          ></Rebuild>
         </div>
       )}
       {editMatrix ? <p>Edit the inputs of the following Matrix</p> : <p>List of currently available matrices</p>}
